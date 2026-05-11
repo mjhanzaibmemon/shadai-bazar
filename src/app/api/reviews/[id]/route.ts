@@ -4,7 +4,7 @@ import connectDB from '@/lib/mongodb';
 import Review from '@/models/Review';
 import { verifyAuth } from '@/lib/authMiddleware';
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
 
@@ -13,11 +13,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return auth.response;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
     }
 
-    const review = await Review.findById(params.id);
+    const review = await Review.findById(id);
 
     if (!review) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
@@ -27,7 +29,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    await Review.findByIdAndDelete(params.id);
+    await Review.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Review deleted successfully' }, { status: 200 });
   } catch (error) {

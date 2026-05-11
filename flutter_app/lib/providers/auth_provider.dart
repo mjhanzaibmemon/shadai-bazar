@@ -28,8 +28,8 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _apiService.loadToken();
-      if (_apiService._token != null) {
-        _token = _apiService._token;
+      if (_apiService.token != null) {
+        _token = _apiService.token;
         _user = await _apiService.getMe();
         _isAuthenticated = true;
       }

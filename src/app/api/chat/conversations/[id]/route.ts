@@ -4,7 +4,7 @@ import connectDB from '@/lib/mongodb';
 import Chat from '@/models/Chat';
 import { verifyAuth } from '@/lib/authMiddleware';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await connectDB();
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const userId = auth.user?.userId;
-    const otherUserId = params.id;
+    const { id: otherUserId } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(otherUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });

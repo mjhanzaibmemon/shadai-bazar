@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, use, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ListingCard } from '@/components/ListingCard';
 import { CITIES, CONDITIONS, PRICE_RANGES, FABRICS } from '@/lib/constants';
@@ -22,7 +22,7 @@ interface Listing {
   featured?: boolean;
 }
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+function CategoryContent({ slug }: { slug: string }) {
   const searchParams = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,13 +38,13 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
   useEffect(() => {
     fetchListings();
-  }, [params.slug, filters]);
+  }, [slug, filters]);
 
   const fetchListings = async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams({
-        category: params.slug,
+        category: slug,
         ...(filters.city && { city: filters.city }),
         ...(filters.condition && { condition: filters.condition }),
         ...(filters.minPrice && { minPrice: filters.minPrice }),
@@ -72,7 +72,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
     setFilters({ city: '', condition: '', minPrice: '', maxPrice: '' });
   };
 
-  const categoryLabel = params.slug.replace('-', ' ').toUpperCase();
+  const categoryLabel = slug.replace('-', ' ').toUpperCase();
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -224,5 +224,14 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-gray-600">Loading...</p></div>}>
+      <CategoryContent slug={slug} />
+    </Suspense>
   );
 }

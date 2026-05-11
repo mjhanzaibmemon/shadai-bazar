@@ -12,6 +12,9 @@ class ApiService {
   late Dio _dio;
   String? _token;
 
+  String? get token => _token;
+  bool get isAuthenticated => _token != null;
+
   factory ApiService() {
     return _instance;
   }
@@ -336,10 +339,15 @@ class ApiService {
     await prefs.remove('jwt_token');
   }
 
-  String _handleError(DioException error) {
+  Exception _handleError(DioException error) {
+    String message;
     if (error.response != null) {
-      return error.response?.data['error'] ?? error.message;
+      message = error.response?.data is Map
+          ? (error.response?.data['error'] ?? error.message ?? 'Request failed')
+          : (error.message ?? 'Request failed');
+    } else {
+      message = error.message ?? 'Network error';
     }
-    return error.message;
+    return Exception(message);
   }
 }

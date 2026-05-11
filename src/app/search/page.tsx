@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ListingCard } from '@/components/ListingCard';
 import { CATEGORIES, CITIES, CONDITIONS, PRICE_RANGES } from '@/lib/constants';
@@ -21,7 +21,7 @@ interface Listing {
   featured?: boolean;
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
 
@@ -242,5 +242,13 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-gray-600">Loading...</p></div>}>
+      <SearchContent />
+    </Suspense>
   );
 }

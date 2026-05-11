@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { use, useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Heart, Share2, MessageCircle, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -38,7 +38,8 @@ interface ListingDetail {
   createdAt: string;
 }
 
-export default function ListingDetailPage({ params }: { params: { id: string } }) {
+export default function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const { isAuthenticated, user } = useAuth();
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,11 +48,11 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
 
   useEffect(() => {
     fetchListing();
-  }, [params.id]);
+  }, [id]);
 
   const fetchListing = async () => {
     try {
-      const response = await fetch(`/api/listings/${params.id}`);
+      const response = await fetch(`/api/listings/${id}`);
       const data = await response.json();
       setListing(data.listing);
     } catch (error) {
@@ -252,7 +253,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
                 </div>
               </div>
 
-              {isAuthenticated && user?._id !== listing.seller._id ? (
+              {isAuthenticated && user?.id !== listing.seller._id ? (
                 <>
                   <button className="w-full py-3 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-bold rounded-lg hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2">
                     <MessageCircle size={20} /> Chat with Seller

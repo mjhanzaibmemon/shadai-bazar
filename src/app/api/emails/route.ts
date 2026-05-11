@@ -12,7 +12,7 @@ interface EmailPayload {
 
 // Nodemailer-like interface for email sending
 // In production, replace with actual email service (SendGrid, Mailgun, AWS SES, etc.)
-const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject: string; html: string }) = {
+const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject: string; html: string }> = {
   new_message: (data) => ({
     subject: `New Message from ${data.senderName}`,
     html: `
@@ -193,7 +193,7 @@ async function sendEmail(email: string, subject: string, html: string): Promise<
 const emailSchema = z.object({
   to: z.string().email(),
   type: z.enum(['new_message', 'new_review', 'listing_featured', 'listing_sold', 'welcome']),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
 });
 
 export async function POST(request: NextRequest) {
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.issues[0].message },
         { status: 400 }
       );
     }

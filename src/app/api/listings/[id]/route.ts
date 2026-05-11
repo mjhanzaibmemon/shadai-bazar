@@ -4,16 +4,19 @@ import connectDB from '@/lib/mongodb';
 import Listing from '@/models/Listing';
 import { verifyAuth } from '@/lib/authMiddleware';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+type RouteParams = { params: Promise<{ id: string }> };
+
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid listing ID' }, { status: 400 });
     }
 
     const listing = await Listing.findByIdAndUpdate(
-      params.id,
+      id,
       { $inc: { views: 1 } },
       { new: true }
     ).populate('seller', 'name avatar city phone email');
@@ -29,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
 
@@ -38,11 +41,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return auth.response;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid listing ID' }, { status: 400 });
     }
 
-    const listing = await Listing.findById(params.id);
+    const listing = await Listing.findById(id);
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -69,7 +74,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     await connectDB();
 
@@ -78,11 +83,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return auth.response;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    const { id } = await params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid listing ID' }, { status: 400 });
     }
 
-    const listing = await Listing.findById(params.id);
+    const listing = await Listing.findById(id);
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
@@ -92,7 +99,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    await Listing.findByIdAndDelete(params.id);
+    await Listing.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Listing deleted successfully' }, { status: 200 });
   } catch (error) {

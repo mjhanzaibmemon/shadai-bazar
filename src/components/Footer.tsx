@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -81,14 +81,14 @@ export function Footer() {
               <p>🕐 Mon-Fri: 10 AM - 6 PM</p>
             </div>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-[#d4a853] transition-colors">
-                <Facebook size={20} />
+              <a href="mailto:support@shaadibazaar.pk" className="hover:text-[#d4a853] transition-colors" aria-label="Email">
+                <Mail size={20} />
               </a>
-              <a href="#" className="hover:text-[#d4a853] transition-colors">
-                <Instagram size={20} />
+              <a href="tel:+923001234567" className="hover:text-[#d4a853] transition-colors" aria-label="Phone">
+                <Phone size={20} />
               </a>
-              <a href="#" className="hover:text-[#d4a853] transition-colors">
-                <Twitter size={20} />
+              <a href="#" className="hover:text-[#d4a853] transition-colors" aria-label="Location">
+                <MapPin size={20} />
               </a>
             </div>
           </div>

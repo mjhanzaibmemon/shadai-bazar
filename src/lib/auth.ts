@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET: string = process.env.JWT_SECRET ?? '';
 
 if (!JWT_SECRET) {
   throw new Error('Please define the JWT_SECRET environment variable inside .env.local');
@@ -33,7 +33,7 @@ export function signToken(payload: TokenPayload): string {
 export function verifyToken(token: string): TokenPayload | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    return decoded as TokenPayload;
+    return decoded as unknown as TokenPayload;
   } catch (error) {
     return null;
   }

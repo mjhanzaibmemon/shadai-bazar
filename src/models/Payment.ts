@@ -7,7 +7,10 @@ export interface IPayment extends Document {
   type: 'featured_listing';
   status: 'pending' | 'completed' | 'failed';
   transactionId?: string;
+  externalTransactionId?: string;
   paymentMethod?: string;
+  responseCode?: string;
+  responseDesc?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,7 +46,19 @@ const paymentSchema = new Schema<IPayment>(
       type: String,
       default: null,
     },
+    externalTransactionId: {
+      type: String,
+      default: null,
+    },
     paymentMethod: {
+      type: String,
+      default: null,
+    },
+    responseCode: {
+      type: String,
+      default: null,
+    },
+    responseDesc: {
       type: String,
       default: null,
     },

@@ -20,6 +20,8 @@ export interface IListing extends Document {
   city: string;
   seller: Types.ObjectId;
   featured: boolean;
+  isFeatured?: boolean;
+  featuredUntil?: Date;
   views: number;
   status: 'active' | 'paused' | 'sold';
   createdAt: Date;
@@ -110,6 +112,14 @@ const listingSchema = new Schema<IListing>(
     featured: {
       type: Boolean,
       default: false,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    featuredUntil: {
+      type: Date,
+      default: null,
     },
     views: {
       type: Number,

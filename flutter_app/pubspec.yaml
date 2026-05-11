@@ -1,0 +1,85 @@
+name: shaadi_bazaar_app
+description: Pakistan's Wedding Marketplace Mobile App
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+
+  # HTTP & API
+  http: ^1.2.0
+  dio: ^5.3.0
+
+  # Storage
+  shared_preferences: ^2.2.2
+
+  # Images & Caching
+  cached_network_image: ^3.3.1
+  image_picker: ^1.0.7
+  permission_handler: ^11.4.4
+
+  # URL Launcher (WhatsApp/Call)
+  url_launcher: ^6.2.5
+
+  # State Management
+  provider: ^6.1.2
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # UI Components
+  carousel_slider: ^4.2.1
+  shimmer: ^3.0.0
+  flutter_rating_bar: ^4.0.1
+  intl: ^0.19.0
+
+  # SVG Support
+  flutter_svg: ^2.0.9
+
+  # Icons
+  lucide_icons: ^0.277.0
+
+  # Loading indicators
+  lottie: ^2.7.0
+
+  # Form validation
+  flutter_form_builder: ^9.1.1
+  form_builder_validators: ^9.1.0
+
+  # Connectivity
+  connectivity_plus: ^5.0.2
+
+  # Local database (optional)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_linter: ^4.0.0
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600

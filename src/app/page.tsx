@@ -108,15 +108,24 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-12 gradient-gold">Shop by Category</h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {CATEGORIES.map((category) => (
               <Link key={category.id} href={`/category/${category.id}`}>
-                <div className="bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all p-6 text-center cursor-pointer group">
+                <div className="bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all p-6 text-center cursor-pointer group h-full">
                   <div className="text-4xl mb-3 group-hover:animate-float">{category.icon}</div>
                   <p className="font-semibold text-gray-800 group-hover:text-[#800020]">{category.label}</p>
+                  <p className="text-xs text-gray-500 mt-1">{category.tagline}</p>
                 </div>
               </Link>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link
+              href="/size-guide"
+              className="inline-flex items-center gap-2 px-5 py-2 bg-amber-50 text-amber-900 border-2 border-amber-200 rounded-full font-semibold text-sm hover:bg-amber-100 transition-colors"
+            >
+              📏 New seller? Read the Size & Measurement Guide
+            </Link>
           </div>
         </div>
       </section>

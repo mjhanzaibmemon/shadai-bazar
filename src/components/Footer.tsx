@@ -55,18 +55,28 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/category/groom-wear" className="hover:text-white transition-colors">
+                <Link href="/category/groom" className="hover:text-white transition-colors">
                   Groom Wear
                 </Link>
               </li>
               <li>
-                <Link href="/category/formal-party" className="hover:text-white transition-colors">
-                  Formal & Party
+                <Link href="/category/guest-women" className="hover:text-white transition-colors">
+                  Guest — Women
                 </Link>
               </li>
               <li>
-                <Link href="/category/casual-ethnic" className="hover:text-white transition-colors">
-                  Casual & Ethnic
+                <Link href="/category/guest-men" className="hover:text-white transition-colors">
+                  Guest — Men
+                </Link>
+              </li>
+              <li>
+                <Link href="/category/jewelry" className="hover:text-white transition-colors">
+                  Jewelry
+                </Link>
+              </li>
+              <li>
+                <Link href="/size-guide" className="hover:text-white transition-colors">
+                  📏 Size Guide
                 </Link>
               </li>
             </ul>

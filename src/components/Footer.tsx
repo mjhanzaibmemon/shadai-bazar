@@ -38,8 +38,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/my-listings" className="hover:text-white transition-colors">
-                  My Listings
+                <Link href="/sahara" className="hover:text-white transition-colors flex items-center gap-1">
+                  🎁 Shaadi Sahara
+                </Link>
+              </li>
+              <li>
+                <Link href="/verify" className="hover:text-white transition-colors flex items-center gap-1">
+                  🛡️ Get Verified
+                </Link>
+              </li>
+              <li>
+                <Link href="/my-wedding" className="hover:text-white transition-colors">
+                  My Wedding
                 </Link>
               </li>
             </ul>

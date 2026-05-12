@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { PWAInstall } from "@/components/PWAInstall";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +18,24 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Shaadi Bazaar - Pakistan's Wedding Marketplace",
-  description: "Buy and sell wedding and occasion wear at 40-70% cheaper prices",
-  keywords: "wedding clothes, bridal wear, groom wear, shaadi, marketplace, Pakistan",
+  description:
+    "Buy and sell wedding wear at 40-70% off. Verified sellers, escrow protection, Shaadi Sahara donations.",
+  keywords:
+    "wedding clothes, bridal wear, groom wear, shaadi, marketplace, Pakistan, lehenga, sherwani, donation, escrow",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Shaadi Bazaar",
+  },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#800020",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -36,6 +53,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <PWAInstall />
         </Providers>
       </body>
     </html>

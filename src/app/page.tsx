@@ -130,6 +130,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Feature highlights ───────────────────────────── */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="/sahara" className="group p-5 bg-gradient-to-br from-rose-50 to-amber-50 rounded-xl border-2 border-transparent hover:border-[#d4a853] transition-all">
+              <div className="text-3xl mb-2">🎁</div>
+              <h3 className="font-bold text-gray-800 mb-1 group-hover:text-[#800020]">Shaadi Sahara</h3>
+              <p className="text-xs text-gray-600">Donate a dress, change a life. Free for verified low-income brides.</p>
+            </Link>
+            <Link href="/verify" className="group p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-transparent hover:border-blue-300 transition-all">
+              <div className="text-3xl mb-2">🛡️</div>
+              <h3 className="font-bold text-gray-800 mb-1 group-hover:text-blue-700">Get Verified</h3>
+              <p className="text-xs text-gray-600">CNIC verification = 3x more buyer trust + higher prices.</p>
+            </Link>
+            <Link href="/my-wedding" className="group p-5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-transparent hover:border-purple-300 transition-all">
+              <div className="text-3xl mb-2">💍</div>
+              <h3 className="font-bold text-gray-800 mb-1 group-hover:text-purple-700">My Wedding</h3>
+              <p className="text-xs text-gray-600">Countdown, budget tracker, wishlist + share with family.</p>
+            </Link>
+            <Link href="/orders" className="group p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-transparent hover:border-green-300 transition-all">
+              <div className="text-3xl mb-2">🔒</div>
+              <h3 className="font-bold text-gray-800 mb-1 group-hover:text-green-700">Escrow Protection</h3>
+              <p className="text-xs text-gray-600">Money held safely until you receive and inspect your dress.</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Listings */}
       <section className="py-16 container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">

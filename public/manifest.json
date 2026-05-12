@@ -1,0 +1,44 @@
+{
+  "name": "Shaadi Bazaar — Pakistan's Wedding Marketplace",
+  "short_name": "Shaadi Bazaar",
+  "description": "Buy and sell wedding wear at 40-70% off. Verified sellers, escrow protection, Shaadi Sahara donations.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff7f0",
+  "theme_color": "#800020",
+  "lang": "en",
+  "categories": ["shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sell a Dress",
+      "url": "/sell",
+      "description": "Post a wedding wear listing"
+    },
+    {
+      "name": "My Wishlist",
+      "url": "/my-wedding",
+      "description": "View saved dresses"
+    },
+    {
+      "name": "Shaadi Sahara",
+      "url": "/sahara",
+      "description": "Donate or apply for help"
+    }
+  ]
+}

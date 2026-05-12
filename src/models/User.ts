@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+import { CITIES } from '@/lib/constants';
 
 export interface IUser extends Document {
   name: string;
@@ -8,8 +9,42 @@ export interface IUser extends Document {
   city: string;
   avatar?: string;
   role: 'user' | 'admin';
-  isVerified: boolean;
+
+  // Suspension
   isSuspended: boolean;
+
+  // ── CNIC Verification (Trust) ─────────────────
+  isVerified: boolean;
+  verification: {
+    cnicNumber?: string;            // 13-digit Pakistani CNIC
+    cnicFrontImage?: string;        // Cloudinary URL or base64
+    cnicBackImage?: string;
+    selfieWithCnic?: string;
+    status: 'unverified' | 'pending' | 'approved' | 'rejected';
+    rejectionReason?: string;
+    submittedAt?: Date;
+    approvedAt?: Date;
+    approvedBy?: Types.ObjectId;
+  };
+
+  // ── Wedding Profile (countdown + budget) ──────
+  weddingProfile?: {
+    weddingDate?: Date;
+    role: 'bride' | 'groom' | 'family' | 'guest' | 'none';
+    budget?: number;
+    spent?: number;
+    shareToken?: string;            // For family sharing
+  };
+
+  // ── Wishlist ─────────────────────────────────
+  wishlist: Types.ObjectId[];        // Listing IDs
+
+  // ── Language preference ──────────────────────
+  language: 'en' | 'ur';
+
+  // ── Push notification token ──────────────────
+  pushSubscription?: string;          // JSON-stringified Web Push subscription
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,48 +78,57 @@ const userSchema = new Schema<IUser>(
     city: {
       type: String,
       required: [true, 'City is required'],
-      enum: [
-        'Karachi',
-        'Lahore',
-        'Islamabad',
-        'Rawalpindi',
-        'Faisalabad',
-        'Multan',
-        'Hyderabad',
-        'Peshawar',
-        'Quetta',
-        'Sialkot',
-        'Gujranwala',
-        'Sargodha',
-        'Bahawalpur',
-        'Sukkur',
-        'Mardan',
-        'Jhang',
-        'Rahim Yar Khan',
-        'Okara',
-        'Attock',
-        'Chakwal',
-      ],
+      enum: CITIES as unknown as string[],
     },
-    avatar: {
-      type: String,
-      default: null,
+    avatar:      { type: String, default: null },
+    role:        { type: String, enum: ['user', 'admin'], default: 'user' },
+    isSuspended: { type: Boolean, default: false },
+
+    // Verification
+    isVerified: { type: Boolean, default: false },
+    verification: {
+      cnicNumber:       { type: String, default: null },
+      cnicFrontImage:   { type: String, default: null },
+      cnicBackImage:    { type: String, default: null },
+      selfieWithCnic:   { type: String, default: null },
+      status: {
+        type: String,
+        enum: ['unverified', 'pending', 'approved', 'rejected'],
+        default: 'unverified',
+      },
+      rejectionReason: { type: String, default: null },
+      submittedAt:     { type: Date,   default: null },
+      approvedAt:      { type: Date,   default: null },
+      approvedBy:      { type: Schema.Types.ObjectId, ref: 'User', default: null },
     },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+
+    // Wedding profile
+    weddingProfile: {
+      weddingDate: { type: Date, default: null },
+      role: {
+        type: String,
+        enum: ['bride', 'groom', 'family', 'guest', 'none'],
+        default: 'none',
+      },
+      budget:     { type: Number, default: 0 },
+      spent:      { type: Number, default: 0 },
+      shareToken: { type: String, default: null, index: true },
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    isSuspended: {
-      type: Boolean,
-      default: false,
-    },
+
+    // Wishlist
+    wishlist: [{ type: Schema.Types.ObjectId, ref: 'Listing' }],
+
+    // Language
+    language: { type: String, enum: ['en', 'ur'], default: 'en' },
+
+    // Push subscription
+    pushSubscription: { type: String, default: null },
   },
   { timestamps: true }
 );
+
+// Indexes
+userSchema.index({ 'verification.status': 1 });
+userSchema.index({ 'weddingProfile.shareToken': 1 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', userSchema);

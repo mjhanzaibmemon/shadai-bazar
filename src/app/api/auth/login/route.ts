@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { comparePassword, signToken } from '@/lib/auth';
+import { comparePassword, signToken, AUTH_COOKIE_OPTIONS } from '@/lib/auth';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -55,13 +55,7 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
 
-    response.cookies.set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    });
+    response.cookies.set('auth_token', token, AUTH_COOKIE_OPTIONS);
 
     return response;
   } catch (error) {

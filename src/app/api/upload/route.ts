@@ -1,51 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import path from 'path';
+import { randomBytes } from 'crypto';
 import { verifyAuth } from '@/lib/authMiddleware';
 
-// In production, use Cloudinary. For now, we'll handle base64 images.
-// Images are stored in the database as base64 strings
+const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+// File-based image upload — saves files to public/uploads/ and returns
+// /api/uploads/[filename] URLs that are served via the uploads route below.
+// Previously this was base64 data URLs, which blow up MongoDB documents and
+// kill page-load performance.
 export async function POST(request: NextRequest) {
   try {
     const auth = await verifyAuth(request);
-    if (!auth.isValid) {
-      return auth.response;
+    if (!auth.isValid) return auth.response;
+
+    if (!existsSync(UPLOAD_DIR)) {
+      await mkdir(UPLOAD_DIR, { recursive: true });
     }
 
     const formData = await request.formData();
-    const file = formData.get('file') as File;
+    // Support both `file` (single) and `files` (multiple) field names
+    const single = formData.get('file') as File | null;
+    const multiple = formData.getAll('files') as File[];
+    const files = [...(single ? [single] : []), ...multiple].filter(Boolean);
 
-    if (!file) {
+    if (files.length === 0) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+    const urls: string[] = [];
+
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        return NextResponse.json(
+          { error: `Invalid file type: ${file.type}. Allowed: JPEG, PNG, WebP, GIF` },
+          { status: 400 }
+        );
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          { error: `File too large (max ${MAX_FILE_SIZE / 1024 / 1024}MB)` },
+          { status: 400 }
+        );
+      }
+
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+      const filename = `${Date.now()}-${randomBytes(8).toString('hex')}.${ext}`;
+      const filepath = path.join(UPLOAD_DIR, filename);
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await writeFile(filepath, buffer);
+
+      urls.push(`/api/uploads/${filename}`);
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 });
-    }
-
-    // Convert to base64
-    const buffer = await file.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    const dataUrl = `data:${file.type};base64,${base64}`;
-
-    // In production with Cloudinary:
-    // const cloudinary = require('cloudinary').v2;
-    // const result = await cloudinary.uploader.upload(dataUrl, {
-    //   folder: 'shaadi-bazaar/listings',
-    //   resource_type: 'auto'
-    // });
-    // return NextResponse.json({ url: result.secure_url });
-
-    // For now, return the base64 data URL
+    // Return single `url` for backward-compat AND `urls` array
     return NextResponse.json(
-      {
-        url: dataUrl,
-        message: 'Image uploaded successfully. Use Cloudinary for production.',
-      },
+      { url: urls[0], urls, count: urls.length },
       { status: 200 }
     );
   } catch (error) {

@@ -39,16 +39,21 @@ export function verifyToken(token: string): TokenPayload | null {
   }
 }
 
+// Cookie options shared by login, signup, setAuthCookie.
+// Secure only enabled when COOKIE_SECURE=true (HTTPS deployment).
+// sameSite=lax so cookie is sent on top-level navigation and same-origin requests.
+export const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.COOKIE_SECURE === 'true',
+  sameSite: 'lax' as const,
+  maxAge: 7 * 24 * 60 * 60, // 7 days
+  path: '/',
+};
+
 // Set JWT cookie
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
-  cookieStore.set('auth_token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-    path: '/',
-  });
+  cookieStore.set('auth_token', token, AUTH_COOKIE_OPTIONS);
 }
 
 // Get JWT from cookies

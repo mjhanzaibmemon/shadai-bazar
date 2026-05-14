@@ -2,10 +2,14 @@ import jwt from 'jsonwebtoken';
 import bcryptjs from 'bcryptjs';
 import { cookies } from 'next/headers';
 
-const JWT_SECRET: string = process.env.JWT_SECRET ?? '';
-
-if (!JWT_SECRET) {
-  throw new Error('Please define the JWT_SECRET environment variable inside .env.local');
+// Lazy getter — never throw at module-load time, otherwise `next build`
+// fails when it tries to collect page data without env vars present.
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not set');
+  }
+  return secret;
 }
 
 export interface TokenPayload {
@@ -26,13 +30,13 @@ export async function comparePassword(password: string, hashedPassword: string):
 
 // Sign JWT token
 export function signToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' });
 }
 
 // Verify JWT token
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, getJwtSecret());
     return decoded as unknown as TokenPayload;
   } catch (error) {
     return null;

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+import Listing from '@/models/Listing';
 import { verifyAuth } from '@/lib/authMiddleware';
 
+void Listing; // Force model registration for populate()
+
 const toggleSchema = z.object({
-  listingId: z.string(),
+  listingId: z
+    .string()
+    .refine((v) => mongoose.isValidObjectId(v), { message: 'Invalid listing id' }),
 });
 
 // POST: Toggle a listing in wishlist

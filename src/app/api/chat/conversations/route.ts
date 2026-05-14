@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectDB from '@/lib/mongodb';
 import Chat from '@/models/Chat';
 import { verifyAuth } from '@/lib/authMiddleware';
@@ -12,7 +13,12 @@ export async function GET(request: NextRequest) {
       return auth.response;
     }
 
-    const userId = auth.user?.userId;
+    const userIdStr = auth.user?.userId;
+    if (!userIdStr || !mongoose.isValidObjectId(userIdStr)) {
+      return NextResponse.json({ conversations: [] });
+    }
+    // Aggregate pipelines do NOT autocast strings to ObjectId, so explicitly cast.
+    const userId = new mongoose.Types.ObjectId(userIdStr);
 
     // Get unique conversations (latest message from each user)
     const conversations = await Chat.aggregate([
@@ -79,7 +85,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         conversations: conversations.map((conv) => ({
-          userId: conv._id,
+          userId: conv._id.toString(),
           userName: conv.user.name,
           userAvatar: conv.user.avatar,
           lastMessage: conv.lastMessage,

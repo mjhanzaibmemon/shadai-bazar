@@ -4,6 +4,7 @@ import connectDB from '@/lib/mongodb';
 import Payment from '@/models/Payment';
 import Listing from '@/models/Listing';
 import { verifyAuth } from '@/lib/authMiddleware';
+import { isJazzCashConfigured, buildJazzCashPayload } from '@/lib/jazzcash';
 
 const createPaymentSchema = z.object({
   listingId: z.string(),
@@ -46,15 +47,38 @@ export async function POST(request: NextRequest) {
 
     await payment.save();
 
-    // In production, redirect to JazzCash payment gateway
-    // For now, return payment details
+    if (isJazzCashConfigured()) {
+      const origin =
+        request.headers.get('origin') ||
+        process.env.NEXT_PUBLIC_BASE_URL ||
+        'http://localhost:3000';
+      const { redirectUrl, params } = buildJazzCashPayload({
+        amount,
+        orderId: payment.transactionId!,
+        billRef: payment._id.toString(),
+        description: `Featured listing — ${listing.title}`.slice(0, 100),
+        returnUrl: `${origin}/api/payments/callback`,
+      });
+
+      return NextResponse.json(
+        {
+          message: 'Payment initiated',
+          paymentId: payment._id,
+          redirectUrl,
+          params,
+          gatewayConfigured: true,
+        },
+        { status: 201 }
+      );
+    }
+
     return NextResponse.json(
       {
         message: 'Payment initiated',
         payment,
-        // In production:
-        // redirectUrl: jazzcash.initiate(payment)
         redirectUrl: '/payments/pending',
+        gatewayConfigured: false,
+        gatewayMessage: 'Payment gateway not configured (sandbox env vars missing)',
       },
       { status: 201 }
     );

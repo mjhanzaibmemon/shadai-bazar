@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import Chat from '@/models/Chat';
+import User from '@/models/User';
+import Listing from '@/models/Listing';
 import { verifyAuth } from '@/lib/authMiddleware';
+import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
+import { sendEmail, emailTemplates } from '@/lib/email';
 
 const sendMessageSchema = z.object({
   receiver: z.string(),
@@ -12,6 +16,13 @@ const sendMessageSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const limited = enforceRateLimit(request, {
+      key: `chat:${getClientIp(request)}`,
+      limit: 60,
+      windowMs: 60 * 1000,
+    });
+    if (limited) return limited;
+
     await connectDB();
 
     const auth = await verifyAuth(request);
@@ -33,6 +44,53 @@ export async function POST(request: NextRequest) {
     await chat.save();
     await chat.populate('sender', 'name avatar');
     await chat.populate('receiver', 'name avatar');
+
+    // Push notification dispatch.
+    // TODO: Wire web-push library — VAPID keys via VAPID_PUBLIC_KEY/PRIVATE_KEY/SUBJECT env
+    try {
+      const receiverUser = await User.findById(receiver)
+        .select('pushSubscriptions pushSubscription')
+        .lean<any>();
+      const subs: any[] = Array.isArray(receiverUser?.pushSubscriptions)
+        ? receiverUser.pushSubscriptions
+        : receiverUser?.pushSubscription
+          ? [receiverUser.pushSubscription]
+          : [];
+      if (subs.length > 0) {
+        console.log(`[push] ${subs.length} subscription(s) for receiver ${receiver}`, subs);
+      }
+    } catch (pushErr) {
+      console.error('[push] lookup failed:', pushErr);
+    }
+
+    // Email notification (fire-and-forget)
+    try {
+      const [receiverUser, senderUser, listingDoc] = await Promise.all([
+        User.findById(receiver).select('name email').lean<any>(),
+        User.findById(auth.user?.userId).select('name').lean<any>(),
+        listing ? Listing.findById(listing).select('title').lean<any>() : Promise.resolve(null),
+      ]);
+
+      if (receiverUser?.email && senderUser?.name) {
+        const origin =
+          request.headers.get('origin') ||
+          process.env.NEXT_PUBLIC_BASE_URL ||
+          'http://localhost:3000';
+        const chatLink = `${origin}/chat`;
+        sendEmail({
+          to: receiverUser.email,
+          ...emailTemplates.newMessage(
+            receiverUser.name,
+            senderUser.name,
+            listingDoc?.title || null,
+            message,
+            chatLink
+          ),
+        }).catch((err) => console.error('[chat] new-message email failed:', err));
+      }
+    } catch (emailErr) {
+      console.error('[chat] email lookup failed:', emailErr);
+    }
 
     return NextResponse.json(
       {

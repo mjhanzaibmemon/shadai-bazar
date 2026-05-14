@@ -3,7 +3,9 @@ import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Listing from '@/models/Listing';
+import User from '@/models/User';
 import { verifyAuth } from '@/lib/authMiddleware';
+import { sendEmail, emailTemplates } from '@/lib/email';
 
 const PLATFORM_FEE_PCT = 0.05;     // 5% commission
 
@@ -57,6 +59,35 @@ export async function POST(request: NextRequest) {
       status: data.paymentMethod === 'cod' ? 'paid' : 'pending_payment',
       paidAt: data.paymentMethod === 'cod' ? new Date() : null,
     });
+
+    // Fire-and-forget order emails (buyer + seller)
+    try {
+      const [buyer, seller] = await Promise.all([
+        User.findById(auth.user?.userId).select('name email').lean<any>(),
+        User.findById(listing.seller).select('name email').lean<any>(),
+      ]);
+      const orderId = order._id.toString();
+
+      if (buyer?.email) {
+        sendEmail({
+          to: buyer.email,
+          ...emailTemplates.orderPlaced(buyer.name, listing.title, orderId),
+        }).catch((err) => console.error('[orders] buyer email failed:', err));
+      }
+      if (seller?.email) {
+        sendEmail({
+          to: seller.email,
+          ...emailTemplates.orderNewForSeller(
+            seller.name,
+            buyer?.name || 'A buyer',
+            listing.title,
+            orderId
+          ),
+        }).catch((err) => console.error('[orders] seller email failed:', err));
+      }
+    } catch (emailErr) {
+      console.error('[orders] email lookup failed:', emailErr);
+    }
 
     return NextResponse.json(
       { message: 'Order created. Awaiting payment confirmation.', order },

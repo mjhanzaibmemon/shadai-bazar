@@ -3,6 +3,7 @@ import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { comparePassword, signToken, AUTH_COOKIE_OPTIONS } from '@/lib/auth';
+import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -11,6 +12,13 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const limited = enforceRateLimit(request, {
+      key: `login:${getClientIp(request)}`,
+      limit: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+    if (limited) return limited;
+
     await connectDB();
 
     const body = await request.json();

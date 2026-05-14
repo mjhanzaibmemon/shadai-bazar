@@ -45,6 +45,15 @@ export interface IUser extends Document {
   // ── Push notification token ──────────────────
   pushSubscription?: string;          // JSON-stringified Web Push subscription
 
+  // ── Email verification ───────────────────────
+  isEmailVerified: boolean;
+  emailVerifyToken?: string;
+  emailVerifyTokenExpiry?: Date;
+
+  // ── Password reset ───────────────────────────
+  passwordResetToken?: string;
+  passwordResetTokenExpiry?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -123,6 +132,15 @@ const userSchema = new Schema<IUser>(
 
     // Push subscription
     pushSubscription: { type: String, default: null },
+
+    // Email verification
+    isEmailVerified:         { type: Boolean, default: false },
+    emailVerifyToken:        { type: String,  default: null, index: true },
+    emailVerifyTokenExpiry:  { type: Date,    default: null },
+
+    // Password reset
+    passwordResetToken:        { type: String, default: null, index: true },
+    passwordResetTokenExpiry:  { type: Date,   default: null },
   },
   { timestamps: true }
 );

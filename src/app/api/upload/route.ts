@@ -4,23 +4,28 @@ import { existsSync } from 'fs';
 import path from 'path';
 import { randomBytes } from 'crypto';
 import { verifyAuth } from '@/lib/authMiddleware';
+import { isCloudinaryEnabled, uploadToCloudinary } from '@/lib/cloudinary';
+import { optimizeImage } from '@/lib/imageOptimize';
+import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-// File-based image upload — saves files to public/uploads/ and returns
-// /api/uploads/[filename] URLs that are served via the uploads route below.
-// Previously this was base64 data URLs, which blow up MongoDB documents and
-// kill page-load performance.
+// Image upload — accepts JPEG/PNG/WebP/GIF, runs each file through sharp
+// (resize + WebP encode), then either uploads to Cloudinary (when configured
+// via env vars) or saves to public/uploads/ and returns /api/uploads/<name>.
 export async function POST(request: NextRequest) {
   try {
+    const limited = enforceRateLimit(request, {
+      key: `upload:${getClientIp(request)}`,
+      limit: 30,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (limited) return limited;
+
     const auth = await verifyAuth(request);
     if (!auth.isValid) return auth.response;
-
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true });
-    }
 
     const formData = await request.formData();
     // Support both `file` (single) and `files` (multiple) field names
@@ -30,6 +35,12 @@ export async function POST(request: NextRequest) {
 
     if (files.length === 0) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    // Only create the local uploads dir if we're actually going to use it.
+    const useCloudinary = isCloudinaryEnabled();
+    if (!useCloudinary && !existsSync(UPLOAD_DIR)) {
+      await mkdir(UPLOAD_DIR, { recursive: true });
     }
 
     const urls: string[] = [];
@@ -49,14 +60,21 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-      const filename = `${Date.now()}-${randomBytes(8).toString('hex')}.${ext}`;
-      const filepath = path.join(UPLOAD_DIR, filename);
-
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(filepath, buffer);
+      const optimized = await optimizeImage(buffer);
 
-      urls.push(`/api/uploads/${filename}`);
+      const filename = `${Date.now()}-${randomBytes(8).toString('hex')}.webp`;
+
+      let url: string;
+      if (useCloudinary) {
+        url = await uploadToCloudinary(optimized.buffer, filename);
+      } else {
+        const filepath = path.join(UPLOAD_DIR, filename);
+        await writeFile(filepath, optimized.buffer);
+        url = `/api/uploads/${filename}`;
+      }
+
+      urls.push(url);
     }
 
     // Return single `url` for backward-compat AND `urls` array
@@ -66,6 +84,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Upload failed';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

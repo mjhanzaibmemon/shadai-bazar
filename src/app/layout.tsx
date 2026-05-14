@@ -5,6 +5,7 @@ import { Providers } from "@/components/Providers";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { PWAInstall } from "@/components/PWAInstall";
+import Analytics from "@/components/Analytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,16 +18,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shaadi Bazaar - Pakistan's Wedding Marketplace",
+  title: {
+    default: 'Shaadi Bazaar — Pakistan\'s Wedding Marketplace',
+    template: '%s | Shaadi Bazaar',
+  },
   description:
-    "Buy and sell wedding wear at 40-70% off. Verified sellers, escrow protection, Shaadi Sahara donations.",
-  keywords:
-    "wedding clothes, bridal wear, groom wear, shaadi, marketplace, Pakistan, lehenga, sherwani, donation, escrow",
-  manifest: "/manifest.json",
+    'Buy and sell pre-loved wedding wear at 40-70% off retail. Pakistan\'s trusted marketplace for bridal lehengas, sherwanis, and party wear.',
+  openGraph: {
+    title: 'Shaadi Bazaar',
+    description: 'Pakistan\'s wedding marketplace',
+    type: 'website',
+    locale: 'en_PK',
+  },
+  twitter: { card: 'summary_large_image' },
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
-    title: "Shaadi Bazaar",
+    statusBarStyle: 'default',
+    title: 'Shaadi Bazaar',
   },
   formatDetection: { telephone: false },
 };
@@ -54,6 +63,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
           <PWAInstall />
+          <Analytics />
         </Providers>
       </body>
     </html>

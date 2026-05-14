@@ -1,9 +1,13 @@
 import mongoose, { Mongoose } from 'mongoose';
 
-const MONGODB_URI: string = process.env.MONGODB_URI ?? '';
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+// Lazy getter — never throw at module-load time, otherwise `next build`
+// fails when it collects page data without env vars present.
+function getMongoUri(): string {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('MONGODB_URI environment variable is not set');
+  }
+  return uri;
 }
 
 interface MongooseCache {
@@ -17,7 +21,7 @@ declare global {
   var mongooseCache: MongooseCache | undefined;
 }
 
-let cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
+const cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
 
 if (!global.mongooseCache) {
   global.mongooseCache = cached;
@@ -29,7 +33,7 @@ export async function connectDB(): Promise<Mongoose> {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, { bufferCommands: false });
+    cached.promise = mongoose.connect(getMongoUri(), { bufferCommands: false });
   }
 
   try {

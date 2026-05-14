@@ -1,6 +1,7 @@
 'use client';
 
 import { use, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Heart, Share2, MessageCircle, Phone, MapPin } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -41,6 +42,7 @@ interface ListingDetail {
 export default function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -255,11 +257,14 @@ export default function ListingDetailPage({ params }: { params: Promise<{ id: st
 
               {isAuthenticated && user?.id !== listing.seller._id ? (
                 <>
-                  <button className="w-full py-3 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-bold rounded-lg hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => router.push(`/chat?to=${listing.seller._id}&listingId=${listing._id}`)}
+                    className="w-full py-3 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-bold rounded-lg hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2"
+                  >
                     <MessageCircle size={20} /> Chat with Seller
                   </button>
                   <a
-                    href={`https://wa.me/${listing.seller.phone}?text=Hi%20${listing.seller.name}%2C%20I%27m%20interested%20in%20your%20${listing.title}%20listing`}
+                    href={`https://wa.me/92${(listing.seller.phone || '').replace(/^(\+92|0)/, '')}?text=${encodeURIComponent(`Salam ${listing.seller.name}, I'm interested in your "${listing.title}" on Shaadi Bazaar`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"

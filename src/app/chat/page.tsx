@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Send, Menu, X } from 'lucide-react';
 
 interface Conversation {
@@ -37,30 +36,76 @@ interface Message {
 }
 
 export default function ChatPage() {
-  const { isAuthenticated, user } = useAuth();
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading chat...</div>}>
+      <ChatPageInner />
+    </Suspense>
+  );
+}
+
+function ChatPageInner() {
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTo = searchParams.get('to');
+  const initialListingId = searchParams.get('listingId');
+
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [showMobileList, setShowMobileList] = useState(true);
+  const [showMobileList, setShowMobileList] = useState(!initialTo);
+  const [sendError, setSendError] = useState('');
+  const [pendingNewUser, setPendingNewUser] = useState<{ id: string; name: string } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/login?redirect=/chat' + (initialTo ? `?to=${initialTo}` : ''));
       return;
     }
     fetchConversations();
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, authLoading, router, initialTo]);
+
+  // Handle ?to=<sellerId> — start or open conversation with that user
+  useEffect(() => {
+    if (!isAuthenticated || !initialTo || loading) return;
+    if (initialTo === user?.id) return; // can't message yourself
+
+    const existing = conversations.find((c) => c.userId === initialTo);
+    if (existing) {
+      setSelectedUserId(initialTo);
+      setShowMobileList(false);
+      return;
+    }
+
+    // No existing conversation — fetch the user's info to seed a placeholder
+    fetch(`/api/listings/${initialListingId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.listing?.seller?.name) {
+          setPendingNewUser({ id: initialTo, name: data.listing.seller.name });
+          setSelectedUserId(initialTo);
+          setShowMobileList(false);
+          if (data.listing.title && !newMessage) {
+            setNewMessage(`Salam! I'm interested in your "${data.listing.title}".`);
+          }
+        }
+      })
+      .catch(() => {});
+  }, [initialTo, initialListingId, conversations, isAuthenticated, loading, user, newMessage]);
 
   useEffect(() => {
-    if (selectedUserId) {
+    if (selectedUserId && !pendingNewUser) {
+      fetchMessages(selectedUserId);
+    } else if (selectedUserId && pendingNewUser?.id === selectedUserId) {
+      // Pending new conversation — still try to load any past messages
       fetchMessages(selectedUserId);
     }
-  }, [selectedUserId]);
+  }, [selectedUserId, pendingNewUser]);
 
   useEffect(() => {
     scrollToBottom();
@@ -104,6 +149,7 @@ export default function ChatPage() {
     if (!newMessage.trim() || !selectedUserId) return;
 
     setSending(true);
+    setSendError('');
     try {
       const response = await fetch('/api/chat/messages', {
         method: 'POST',
@@ -111,18 +157,22 @@ export default function ChatPage() {
         body: JSON.stringify({
           receiver: selectedUserId,
           message: newMessage,
+          listing: initialListingId || undefined,
         }),
       });
 
+      const data = await response.json().catch(() => ({}));
       if (response.ok) {
-        const data = await response.json();
         setMessages((prev) => [...prev, data.chat]);
         setNewMessage('');
+        setPendingNewUser(null);
         // Refresh conversations to update last message
         fetchConversations();
+      } else {
+        setSendError(data.error || `Failed to send (${response.status})`);
       }
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch (error: any) {
+      setSendError(error?.message || 'Network error — please try again');
     } finally {
       setSending(false);
     }
@@ -133,6 +183,12 @@ export default function ChatPage() {
   }
 
   const selectedConversation = conversations.find((c) => c.userId === selectedUserId);
+  // Show chat panel either when there's an existing conversation OR a pending new one
+  const activeRecipient = selectedConversation
+    ? { name: selectedConversation.userName }
+    : pendingNewUser && pendingNewUser.id === selectedUserId
+      ? { name: pendingNewUser.name }
+      : null;
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
@@ -202,23 +258,32 @@ export default function ChatPage() {
         </aside>
 
         {/* Chat Window */}
-        {selectedConversation ? (
-          <main className="flex-1 flex flex-col bg-white hidden md:flex">
+        {activeRecipient ? (
+          <main className={`flex-1 flex flex-col bg-white ${showMobileList ? 'hidden md:flex' : 'flex'}`}>
             {/* Chat Header */}
             <div className="border-b border-gray-200 p-4 bg-gray-50">
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowMobileList(true)}
+                  className="md:hidden text-gray-600 hover:text-gray-900"
+                >
+                  <Menu size={20} />
+                </button>
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#800020] to-[#d4a853] flex items-center justify-center text-white font-bold text-sm">
-                  {selectedConversation.userName.charAt(0)}
+                  {activeRecipient.name.charAt(0)}
                 </div>
                 <div className="flex-1">
-                  <p className="font-semibold text-gray-800">{selectedConversation.userName}</p>
-                  <p className="text-xs text-gray-500">Online</p>
+                  <p className="font-semibold text-gray-800">{activeRecipient.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {pendingNewUser ? 'New conversation' : 'Online'}
+                  </p>
                 </div>
               </div>
 
               {/* Listing Info */}
-              {selectedConversation.listing && (
+              {selectedConversation?.listing && (
                 <div className="mt-3 p-2 bg-white rounded border border-gray-200 flex gap-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={selectedConversation.listing.images[0]}
                     alt={selectedConversation.listing.title}
@@ -268,6 +333,12 @@ export default function ChatPage() {
             </div>
 
             {/* Message Input */}
+            {sendError && (
+              <div className="bg-rose-50 border-t border-rose-200 text-rose-700 px-4 py-2 text-sm flex items-center justify-between">
+                <span>⚠️ {sendError}</span>
+                <button onClick={() => setSendError('')} className="text-rose-500 hover:text-rose-700 font-bold ml-2">✕</button>
+              </div>
+            )}
             <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-4 bg-gray-50">
               <div className="flex gap-2">
                 <input

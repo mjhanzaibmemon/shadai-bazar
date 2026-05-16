@@ -11,7 +11,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-bold mb-4">
-              💍 <span className="text-[#d4a853]">Shaadi</span> Bazaar
+              💍 <span className="text-[#d4a853]">Rukhsati</span>
             </h3>
             <p className="text-gray-400">
               Pakistan's premier marketplace for wedding and occasion wear. Buy and sell at 40-70% cheaper prices.

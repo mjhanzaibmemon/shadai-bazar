@@ -1,5 +1,5 @@
-/**
- * Shaadi Bazaar i18n — Urdu / English dictionary.
+﻿/**
+ * Rukhsati i18n — Urdu / English dictionary.
  *
  * Add a key here, then use `t('key')` from useI18n() in any client component.
  * Missing keys fall back to the English value or the key itself.

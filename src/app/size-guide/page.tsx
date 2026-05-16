@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -285,7 +285,7 @@ export default function SizeGuidePage() {
               </h3>
               <p className="text-gray-700 leading-relaxed">
                 <strong>Galat measurements likhne se aapki rating tabah ho jati hai.</strong> Buyer expectation manage karna mushkil
-                ho jata hai aur returns barhte hain. Time lagao, sahi measurements likho — Shaadi Bazaar par
+                ho jata hai aur returns barhte hain. Time lagao, sahi measurements likho — Rukhsati par
                 <strong> verified sellers</strong> 3x zyada paise kamate hain quick sellers se. Apna size carefully measure karein
                 aur kabhi guess na karein!
               </p>

@@ -1,4 +1,4 @@
-// Resend integration via fetch (no SDK).
+﻿// Resend integration via fetch (no SDK).
 // Lazy env getters — never throw at module load time so `next build` can
 // collect page data without RESEND_API_KEY being set.
 
@@ -9,7 +9,7 @@ function getResendKey(): string | null {
 }
 
 function getFromAddress(): string {
-  return process.env.FROM_EMAIL || 'Shaadi Bazaar <onboarding@resend.dev>';
+  return process.env.FROM_EMAIL || 'Rukhsati <onboarding@resend.dev>';
 }
 
 export interface SendEmailParams {
@@ -71,7 +71,7 @@ function shell(bodyHtml: string): string {
           <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             <tr>
               <td style="background:linear-gradient(135deg, ${MAROON} 0%, ${GOLD} 100%);padding:24px 32px;">
-                <h1 style="margin:0;color:#ffffff;font-size:24px;letter-spacing:0.5px;">Shaadi Bazaar</h1>
+                <h1 style="margin:0;color:#ffffff;font-size:24px;letter-spacing:0.5px;">Rukhsati</h1>
               </td>
             </tr>
             <tr>
@@ -81,7 +81,7 @@ function shell(bodyHtml: string): string {
             </tr>
             <tr>
               <td style="padding:16px 32px;background:#fafafa;border-top:1px solid #eee;font-size:12px;color:#888;text-align:center;">
-                &copy; ${new Date().getFullYear()} Shaadi Bazaar · Pakistan's wedding marketplace
+                &copy; ${new Date().getFullYear()} Rukhsati · Pakistan's wedding marketplace
               </td>
             </tr>
           </table>
@@ -100,12 +100,12 @@ function button(href: string, label: string): string {
 export const emailTemplates = {
   welcome(name: string) {
     return {
-      subject: 'Welcome to Shaadi Bazaar!',
+      subject: 'Welcome to Rukhsati!',
       html: shell(`
         <h2 style="color:${MAROON};margin-top:0;">Welcome, ${name}!</h2>
         <p>We're thrilled to have you join Pakistan's premier wedding marketplace.</p>
         <p>Browse beautiful bridal wear, decor, jewellery and connect with trusted sellers across the country.</p>
-        <p style="margin-top:24px;">${button('https://shaadibazaar.pk', 'Start Exploring')}</p>
+        <p style="margin-top:24px;">${button('https://rukhsati.pk', 'Start Exploring')}</p>
         <p style="color:#888;margin-top:24px;font-size:13px;">Mubarak ho — your wedding journey begins here.</p>
       `),
     };
@@ -113,7 +113,7 @@ export const emailTemplates = {
 
   verifyEmail(name: string, link: string) {
     return {
-      subject: 'Verify your email — Shaadi Bazaar',
+      subject: 'Verify your email — Rukhsati',
       html: shell(`
         <h2 style="color:${MAROON};margin-top:0;">Hi ${name},</h2>
         <p>Please confirm your email address so we can secure your account.</p>
@@ -126,10 +126,10 @@ export const emailTemplates = {
 
   passwordReset(name: string, link: string) {
     return {
-      subject: 'Reset your password — Shaadi Bazaar',
+      subject: 'Reset your password — Rukhsati',
       html: shell(`
         <h2 style="color:${MAROON};margin-top:0;">Hi ${name},</h2>
-        <p>We received a request to reset your Shaadi Bazaar password. Click below to choose a new one.</p>
+        <p>We received a request to reset your Rukhsati password. Click below to choose a new one.</p>
         <p style="margin:24px 0;">${button(link, 'Reset Password')}</p>
         <p style="font-size:13px;color:#888;">Or copy this link: <br/><span style="word-break:break-all;">${link}</span></p>
         <p style="font-size:13px;color:#888;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
@@ -149,7 +149,7 @@ export const emailTemplates = {
       : '';
     const preview = msg.length > 200 ? msg.slice(0, 200) + '…' : msg;
     return {
-      subject: `New message from ${senderName} on Shaadi Bazaar`,
+      subject: `New message from ${senderName} on Rukhsati`,
       html: shell(`
         <h2 style="color:${MAROON};margin-top:0;">Hi ${receiverName},</h2>
         <p><strong>${senderName}</strong> sent you a message ${context}.</p>
@@ -163,7 +163,7 @@ export const emailTemplates = {
 
   orderPlaced(buyerName: string, listingTitle: string, orderId: string) {
     return {
-      subject: 'Order confirmed — Shaadi Bazaar',
+      subject: 'Order confirmed — Rukhsati',
       html: shell(`
         <h2 style="color:${MAROON};margin-top:0;">Thanks, ${buyerName}!</h2>
         <p>Your order for <strong>${listingTitle}</strong> has been placed.</p>

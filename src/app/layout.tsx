@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
@@ -19,13 +19,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Shaadi Bazaar — Pakistan\'s Wedding Marketplace',
-    template: '%s | Shaadi Bazaar',
+    default: 'Rukhsati — Pakistan\'s Wedding Marketplace',
+    template: '%s | Rukhsati',
   },
   description:
     'Buy and sell pre-loved wedding wear at 40-70% off retail. Pakistan\'s trusted marketplace for bridal lehengas, sherwanis, and party wear.',
   openGraph: {
-    title: 'Shaadi Bazaar',
+    title: 'Rukhsati',
     description: 'Pakistan\'s wedding marketplace',
     type: 'website',
     locale: 'en_PK',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Shaadi Bazaar',
+    title: 'Rukhsati',
   },
   formatDetection: { telephone: false },
 };

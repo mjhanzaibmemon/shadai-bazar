@@ -263,7 +263,7 @@ export default function ListingClient({ id }: { id: string }) {
                     <MessageCircle size={20} /> Chat with Seller
                   </button>
                   <a
-                    href={`https://wa.me/92${(listing.seller.phone || '').replace(/^(\+92|0)/, '')}?text=${encodeURIComponent(`Salam ${listing.seller.name}, I'm interested in your "${listing.title}" on Shaadi Bazaar`)}`}
+                    href={`https://wa.me/92${(listing.seller.phone || '').replace(/^(\+92|0)/, '')}?text=${encodeURIComponent(`Salam ${listing.seller.name}, I'm interested in your "${listing.title}" on Rukhsati`)}`}
                     target='_blank'
                     rel='noopener noreferrer'
                     className='w-full py-3 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2'

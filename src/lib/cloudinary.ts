@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+﻿import { createHash } from 'crypto';
 
 // Cloudinary cloud upload via REST API.
 // We avoid the SDK (extra dep, extra cold-start cost) and just hit
@@ -7,7 +7,7 @@ import { createHash } from 'crypto';
 // they don't require pre-configuring an upload preset in the dashboard.
 //
 // Required env vars (when enabled):
-//   CLOUDINARY_CLOUD_NAME  - your cloud name (e.g. "shaadibazaar")
+//   CLOUDINARY_CLOUD_NAME  - your cloud name (e.g. "rukhsati")
 //   CLOUDINARY_API_KEY     - the public API key
 //   CLOUDINARY_API_SECRET  - the secret used to sign the request
 //
@@ -15,7 +15,7 @@ import { createHash } from 'crypto';
 // storage (which already exists and works) so dev / local setups still
 // function without configuring Cloudinary.
 
-const CLOUD_FOLDER = 'shaadi-bazaar/listings';
+const CLOUD_FOLDER = 'rukhsati/listings';
 
 export function isCloudinaryEnabled(): boolean {
   return Boolean(

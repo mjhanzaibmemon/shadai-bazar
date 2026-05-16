@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 // Email template types
@@ -35,7 +35,7 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
             </a>
           </p>
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            Shaadi Bazaar &copy; 2024. All rights reserved.
+            Rukhsati &copy; 2024. All rights reserved.
           </p>
         </div>
       </div>
@@ -64,7 +64,7 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
             </a>
           </p>
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            Shaadi Bazaar &copy; 2024. All rights reserved.
+            Rukhsati &copy; 2024. All rights reserved.
           </p>
         </div>
       </div>
@@ -92,7 +92,7 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
             </a>
           </p>
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            Shaadi Bazaar &copy; 2024. All rights reserved.
+            Rukhsati &copy; 2024. All rights reserved.
           </p>
         </div>
       </div>
@@ -113,14 +113,14 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
             <strong>${data.listingTitle}</strong><br>
             Price: Rs. ${data.price}
           </p>
-          <p>Thank you for using Shaadi Bazaar! Please don't forget to leave feedback about your experience.</p>
+          <p>Thank you for using Rukhsati! Please don't forget to leave feedback about your experience.</p>
           <p style="margin-top: 20px;">
             <a href="${data.dashboardUrl}" style="background: #800020; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
               Go to Dashboard
             </a>
           </p>
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            Shaadi Bazaar &copy; 2024. All rights reserved.
+            Rukhsati &copy; 2024. All rights reserved.
           </p>
         </div>
       </div>
@@ -128,16 +128,16 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
   }),
 
   welcome: (data) => ({
-    subject: '🎉 Welcome to Shaadi Bazaar!',
+    subject: '🎉 Welcome to Rukhsati!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #800020 0%, #e11d48 100%); padding: 20px; color: white; border-radius: 8px 8px 0 0; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">👰 Shaadi Bazaar</h1>
+          <h1 style="margin: 0; font-size: 28px;">👰 Rukhsati</h1>
           <p style="margin: 5px 0 0 0;">Pakistan's Wedding Marketplace</p>
         </div>
         <div style="padding: 20px; background: #f9fafb;">
           <p>Hi ${data.name},</p>
-          <p>Welcome to <strong>Shaadi Bazaar</strong>! We're excited to have you on board.</p>
+          <p>Welcome to <strong>Rukhsati</strong>! We're excited to have you on board.</p>
           <p>Whether you're buying or selling wedding wear, you've come to the right place. Get started:</p>
           <ul style="background: white; padding: 15px; border-radius: 4px; margin: 15px 0;">
             <li><strong>Browse</strong> thousands of listings from sellers across Pakistan</li>
@@ -154,7 +154,7 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
             </a>
           </p>
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            Shaadi Bazaar &copy; 2024. All rights reserved.
+            Rukhsati &copy; 2024. All rights reserved.
           </p>
         </div>
       </div>

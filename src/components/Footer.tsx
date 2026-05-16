@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
@@ -96,12 +96,12 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-[#d4a853]">Get in Touch</h4>
             <div className="space-y-2 text-gray-400 mb-4">
-              <p>📧 support@shaadibazaar.pk</p>
+              <p>📧 support@rukhsati.pk</p>
               <p>📱 +92 300 1234567</p>
               <p>🕐 Mon-Fri: 10 AM - 6 PM</p>
             </div>
             <div className="flex gap-4">
-              <a href="mailto:support@shaadibazaar.pk" className="hover:text-[#d4a853] transition-colors" aria-label="Email">
+              <a href="mailto:support@rukhsati.pk" className="hover:text-[#d4a853] transition-colors" aria-label="Email">
                 <Mail size={20} />
               </a>
               <a href="tel:+923001234567" className="hover:text-[#d4a853] transition-colors" aria-label="Phone">
@@ -116,7 +116,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
-          <p>&copy; 2024 Shaadi Bazaar. All rights reserved.</p>
+          <p>&copy; 2024 Rukhsati. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
             <Link href="#" className="hover:text-white transition-colors">
               Privacy Policy

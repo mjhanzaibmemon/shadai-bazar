@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { Download, X } from 'lucide-react';
@@ -55,7 +55,7 @@ export function PWAInstall() {
           <Download size={24} className="text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-800 text-sm">Install Shaadi Bazaar</h3>
+          <h3 className="font-bold text-gray-800 text-sm">Install Rukhsati</h3>
           <p className="text-xs text-gray-600 mt-0.5">
             App ki tarah install karein — faster, offline support, push notifications.
           </p>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -37,7 +37,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#800020] via-white to-[#d4a853] px-4">
       <div className="w-full max-w-md glass rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-3xl font-bold text-center gradient-gold mb-2">Shaadi Bazaar</h1>
+        <h1 className="text-3xl font-bold text-center gradient-gold mb-2">Rukhsati</h1>
         <p className="text-center text-gray-600 mb-8">Login to your account</p>
 
         {error && (

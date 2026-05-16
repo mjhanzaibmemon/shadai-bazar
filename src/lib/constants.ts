@@ -1,5 +1,5 @@
-/**
- * SHAADI BAZAAR — Master constants for the entire app.
+﻿/**
+ * Rukhsati — Master constants for the entire app.
  * Categories cover BOTH bride/groom AND guest (mehmaan) wear, plus accessories.
  * Sub-categories follow Pakistani wedding terminology.
  */

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const desc = (l.description || '').slice(0, 160);
     return {
       title: l.title,
-      description: desc || 'Beautiful wedding wear on Shaadi Bazaar',
+      description: desc || 'Beautiful wedding wear on Rukhsati',
       openGraph: {
         title: l.title,
         description: desc,
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch {
-    return { title: 'Shaadi Bazaar' };
+    return { title: 'Rukhsati' };
   }
 }
 

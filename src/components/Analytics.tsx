@@ -1,11 +1,11 @@
-import Script from 'next/script';
+﻿import Script from 'next/script';
 
 /**
  * Analytics component — supports Plausible (preferred, privacy-friendly)
  * and Google Analytics. Renders nothing if neither env var is set.
  *
  * Set ONE of:
- *   NEXT_PUBLIC_PLAUSIBLE_DOMAIN — e.g. "shaadibazaar.com" or "44-248-29-160.sslip.io"
+ *   NEXT_PUBLIC_PLAUSIBLE_DOMAIN — e.g. "rukhsati.com" or "44-248-29-160.sslip.io"
  *   NEXT_PUBLIC_GA_ID            — e.g. "G-XXXXXXXX"
  */
 export default function Analytics() {

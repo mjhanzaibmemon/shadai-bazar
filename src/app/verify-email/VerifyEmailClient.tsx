@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -60,7 +60,7 @@ function VerifyEmailInner() {
               </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h1>
-            <p className="text-gray-600 mb-6">Your account is now fully active. Welcome to Shaadi Bazaar.</p>
+            <p className="text-gray-600 mb-6">Your account is now fully active. Welcome to Rukhsati.</p>
             <Link href="/" className="inline-block bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transition-all">
               Continue
             </Link>

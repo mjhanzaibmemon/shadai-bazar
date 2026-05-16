@@ -58,7 +58,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json();
-    Object.assign(listing, body);
+    const allowedFields = ['title', 'description', 'price', 'category', 'subCategory', 'occasion', 'condition', 'size', 'color', 'images', 'city', 'area', 'phone', 'whatsapp', 'tags', 'isAvailable'];
+    allowedFields.forEach((field) => {
+      if (body[field] !== undefined) listing[field] = body[field];
+    });
     await listing.save();
 
     return NextResponse.json(

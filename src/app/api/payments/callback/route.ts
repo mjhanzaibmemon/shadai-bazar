@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Payment from '@/models/Payment';
 import Listing from '@/models/Listing';
 import { verifyJazzCashCallback } from '@/lib/jazzcash';
+import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
 
 /**
  * JazzCash Payment Callback Handler
@@ -15,6 +16,13 @@ const FEATURED_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(request.url).origin;
+
+  const limited = enforceRateLimit(request, {
+    key: `payment-callback:${getClientIp(request)}`,
+    limit: 20,
+    windowMs: 60 * 1000,
+  });
+  if (limited) return NextResponse.redirect(`${baseUrl}/my-listings?payment=failed`);
 
   try {
     await connectDB();

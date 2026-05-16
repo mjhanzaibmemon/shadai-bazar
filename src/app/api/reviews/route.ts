@@ -63,7 +63,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { seller, listing, rating, comment } = createReviewSchema.parse(body);
 
-    // Check if user already reviewed this seller
+    if (seller === auth.user?.userId) {
+      return NextResponse.json({ error: 'You cannot review yourself' }, { status: 400 });
+    }
+
     const existingReview = await Review.findOne({
       seller,
       reviewer: auth.user?.userId,
@@ -82,7 +85,7 @@ export async function POST(request: NextRequest) {
       listing: listing || null,
       rating,
       comment,
-      isVerified: true, // In production, should be verified after purchase
+      isVerified: true,
     });
 
     await review.save();

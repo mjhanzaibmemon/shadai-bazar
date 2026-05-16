@@ -31,7 +31,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <div className="text-xl md:text-2xl font-bold text-white">
-              💍 <span className="text-[#d4a853]">Shaadi</span> Bazaar
+              💍 <span className="text-[#d4a853]">Rukhsati</span>
             </div>
           </Link>
 

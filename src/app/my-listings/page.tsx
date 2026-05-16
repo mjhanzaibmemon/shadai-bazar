@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Edit2, Trash2, Eye, EyeOff, Plus } from 'lucide-react';
+import { Edit2, Trash2, Eye, EyeOff, Plus, MessageCircle } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -22,6 +22,7 @@ export default function MyListingsPage() {
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const [listings, setListings] = useState<Listing[]>([]);
+  const [unreadByListing, setUnreadByListing] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'active' | 'paused' | 'sold'>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function MyListingsPage() {
       return;
     }
     fetchListings();
+    fetchUnread();
   }, [isAuthenticated, router]);
 
   const fetchListings = async () => {
@@ -47,6 +49,16 @@ export default function MyListingsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchUnread = async () => {
+    try {
+      const response = await fetch('/api/chat/unread-by-listing');
+      if (response.ok) {
+        const data = await response.json();
+        setUnreadByListing(data.unreadByListing || {});
+      }
+    } catch {}
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
@@ -170,6 +182,7 @@ export default function MyListingsPage() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800">Price</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800">Status</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800">Views</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800">Messages</th>
                     <th className="px-6 py-4 text-left text-sm font-semibold text-gray-800">Posted</th>
                     <th className="px-6 py-4 text-right text-sm font-semibold text-gray-800">Actions</th>
                   </tr>
@@ -227,6 +240,27 @@ export default function MyListingsPage() {
                       {/* Views Column */}
                       <td className="px-6 py-4">
                         <p className="text-gray-800 font-semibold">👁 {listing.views}</p>
+                      </td>
+
+                      {/* Messages Column */}
+                      <td className="px-6 py-4">
+                        {unreadByListing[listing._id] > 0 ? (
+                          <Link
+                            href={`/chat?listingId=${listing._id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200 font-bold text-sm transition-colors"
+                            title="View unread messages"
+                          >
+                            <MessageCircle size={14} /> {unreadByListing[listing._id]}
+                          </Link>
+                        ) : (
+                          <Link
+                            href={`/chat?listingId=${listing._id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 text-sm transition-colors"
+                            title="View chat"
+                          >
+                            <MessageCircle size={14} /> 0
+                          </Link>
+                        )}
                       </td>
 
                       {/* Posted Column */}

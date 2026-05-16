@@ -13,14 +13,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return auth.response;
     }
 
-    const userId = auth.user?.userId;
-    const { id: otherUserId } = await params;
+    const userIdStr = auth.user?.userId;
+    const { id: otherUserIdStr } = await params;
 
-    if (!mongoose.Types.ObjectId.isValid(otherUserId)) {
+    if (!userIdStr || !mongoose.isValidObjectId(userIdStr)) {
+      return NextResponse.json({ error: 'Invalid user' }, { status: 400 });
+    }
+    if (!mongoose.isValidObjectId(otherUserIdStr)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
     }
 
-    // Get all messages between the two users
+    const userId = new mongoose.Types.ObjectId(userIdStr);
+    const otherUserId = new mongoose.Types.ObjectId(otherUserIdStr);
+
     const messages = await Chat.find({
       $or: [
         { sender: userId, receiver: otherUserId },
@@ -32,7 +37,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .populate('receiver', 'name avatar')
       .populate('listing', 'title images');
 
-    // Mark messages as read
     await Chat.updateMany(
       {
         sender: otherUserId,
@@ -46,7 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       {
         messages,
         otherUser: {
-          id: otherUserId,
+          id: otherUserIdStr,
         },
       },
       { status: 200 }

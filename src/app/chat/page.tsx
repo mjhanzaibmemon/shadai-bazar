@@ -59,7 +59,12 @@ function ChatPageInner() {
   const [showMobileList, setShowMobileList] = useState(!initialTo);
   const [sendError, setSendError] = useState('');
   const [pendingNewUser, setPendingNewUser] = useState<{ id: string; name: string } | null>(null);
+  const [listingFilter, setListingFilter] = useState<string | null>(initialListingId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const visibleConversations = listingFilter
+    ? conversations.filter((c) => c.listing?._id === listingFilter)
+    : conversations;
 
   useEffect(() => {
     if (authLoading) return;
@@ -120,9 +125,14 @@ function ChatPageInner() {
       const response = await fetch('/api/chat/conversations');
       if (response.ok) {
         const data = await response.json();
-        setConversations(data.conversations || []);
-        if (data.conversations?.length > 0) {
-          setSelectedUserId(data.conversations[0].userId);
+        const convs: Conversation[] = data.conversations || [];
+        setConversations(convs);
+        const filtered = listingFilter
+          ? convs.filter((c) => c.listing?._id === listingFilter)
+          : convs;
+        if (filtered.length > 0 && !selectedUserId) {
+          setSelectedUserId(filtered[0].userId);
+          if (filtered.length === 1) setShowMobileList(false);
         }
       }
     } catch (error) {
@@ -212,11 +222,25 @@ function ChatPageInner() {
             showMobileList ? 'block' : 'hidden md:block'
           }`}
         >
+          {listingFilter && (
+            <div className="p-3 bg-amber-50 border-b border-amber-200 flex items-center justify-between text-sm">
+              <span className="text-amber-900 font-semibold">Filtered by listing</span>
+              <button
+                onClick={() => {
+                  setListingFilter(null);
+                  setSelectedUserId(null);
+                }}
+                className="text-amber-700 hover:text-amber-900 font-semibold"
+              >
+                ← All conversations
+              </button>
+            </div>
+          )}
           {loading ? (
             <div className="p-4 text-center text-gray-600">Loading conversations...</div>
-          ) : conversations.length > 0 ? (
+          ) : visibleConversations.length > 0 ? (
             <div className="divide-y divide-gray-200">
-              {conversations.map((conversation) => (
+              {visibleConversations.map((conversation) => (
                 <button
                   key={conversation.userId}
                   onClick={() => {
@@ -251,8 +275,10 @@ function ChatPageInner() {
             </div>
           ) : (
             <div className="p-8 text-center text-gray-600">
-              <p>No conversations yet</p>
-              <p className="text-sm mt-2">Start chatting by viewing a listing</p>
+              <p>{listingFilter ? 'No messages on this listing yet' : 'No conversations yet'}</p>
+              <p className="text-sm mt-2">
+                {listingFilter ? 'Buyers can reach you here when they message about this ad' : 'Start chatting by viewing a listing'}
+              </p>
             </div>
           )}
         </aside>

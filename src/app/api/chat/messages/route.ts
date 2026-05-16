@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { z } from 'zod';
 import connectDB from '@/lib/mongodb';
 import Chat from '@/models/Chat';
@@ -32,6 +33,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { receiver, message, listing } = sendMessageSchema.parse(body);
+
+    if (!mongoose.isValidObjectId(receiver)) {
+      return NextResponse.json({ error: 'Invalid receiver ID' }, { status: 400 });
+    }
+    if (listing && !mongoose.isValidObjectId(listing)) {
+      return NextResponse.json({ error: 'Invalid listing ID' }, { status: 400 });
+    }
+    if (receiver === auth.user?.userId) {
+      return NextResponse.json({ error: 'Cannot message yourself' }, { status: 400 });
+    }
 
     const chat = new Chat({
       sender: auth.user?.userId,

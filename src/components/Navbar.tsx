@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { SmartSearchBar } from './SmartSearchBar';
+import { InboxBadge } from './InboxBadge';
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -58,6 +59,8 @@ export function Navbar() {
                 >
                   ➕ {t('nav.sell')}
                 </Link>
+
+                <InboxBadge />
 
                 <button
                   onClick={toggleLocale}
@@ -137,6 +140,7 @@ export function Navbar() {
             {isAuthenticated ? (
               <>
                 <MobileLink href="/sell" label={`➕ ${t('nav.sell')}`} />
+                <InboxBadge mobile />
                 <MobileLink href="/my-wedding" label={t('nav.my-wedding')} />
                 <MobileLink href="/my-listings" label={t('nav.my-listings')} />
                 <MobileLink href="/orders" label={t('nav.orders')} />

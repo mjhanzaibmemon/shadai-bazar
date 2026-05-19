@@ -99,14 +99,25 @@ function button(href: string, label: string): string {
 // ── Template registry ────────────────────────────────────────────
 export const emailTemplates = {
   welcome(name: string) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ruksati.jugarbazar.com';
     return {
-      subject: 'Welcome to Rukhsati!',
+      subject: '🌸 Welcome to Rukhsati — Pakistan ka Wedding Marketplace!',
       html: shell(`
-        <h2 style="color:${MAROON};margin-top:0;">Welcome, ${name}!</h2>
-        <p>We're thrilled to have you join Pakistan's premier wedding marketplace.</p>
-        <p>Browse beautiful bridal wear, decor, jewellery and connect with trusted sellers across the country.</p>
-        <p style="margin-top:24px;">${button('https://rukhsati.pk', 'Start Exploring')}</p>
-        <p style="color:#888;margin-top:24px;font-size:13px;">Mubarak ho — your wedding journey begins here.</p>
+        <h2 style="color:${MAROON};margin-top:0;">Welcome, ${name}! 🎉</h2>
+        <p>Hum bahut khush hain ke aap Rukhsati family ka hissa ban gaye — Pakistan ka sabse trusted wedding marketplace.</p>
+        <p><strong>Aap kya kar sakte ho:</strong></p>
+        <ul style="line-height:1.8;">
+          <li>👗 Bridal wear, jewellery, decor browse karo</li>
+          <li>💰 40-70% sasta — pre-loved & new items</li>
+          <li>🤝 Trusted verified sellers se contact karo</li>
+          <li>📤 Apna saamaan bechne ke liye listing post karo (free!)</li>
+        </ul>
+        <p style="margin-top:24px;">${button(baseUrl, 'Start Exploring')}</p>
+        <p style="margin-top:24px;">
+          ${button(`${baseUrl}/sell`, '➕ Post Your First Listing')}
+        </p>
+        <p style="color:#888;margin-top:24px;font-size:13px;">Mubarak ho — your wedding journey begins here. 💍</p>
+        <p style="color:#888;font-size:13px;">Koi sawal? Bas reply karo is email pe — hum yahan hain madad ke liye.</p>
       `),
     };
   },

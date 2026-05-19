@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.jugarbazar.ruksati",
+    "sha256_cert_fingerprints": ["8A:43:30:1D:D4:C3:6F:CE:E8:72:8E:FF:5B:EC:A7:74:87:08:5D:AB:B9:07:0B:CD:C5:BC:79:ED:4E:9D:9E:30"]
+  }
+}]

@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
 
     // Fire-and-forget emails (never block response)
     const origin =
-      request.headers.get('origin') ||
       process.env.NEXT_PUBLIC_BASE_URL ||
+      request.headers.get('origin') ||
       'http://localhost:3000';
     const verifyLink = `${origin}/verify-email?token=${verifyToken}`;
 

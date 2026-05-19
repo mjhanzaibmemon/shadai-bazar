@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
       await user.save();
 
       const origin =
-        request.headers.get('origin') ||
         process.env.NEXT_PUBLIC_BASE_URL ||
+        request.headers.get('origin') ||
         'http://localhost:3000';
       const resetLink = `${origin}/reset-password?token=${token}`;
 

@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
 
       if (receiverUser?.email && senderUser?.name) {
         const origin =
-          request.headers.get('origin') ||
           process.env.NEXT_PUBLIC_BASE_URL ||
+          request.headers.get('origin') ||
           'http://localhost:3000';
         const chatLink = `${origin}/chat`;
         sendEmail({

@@ -1,11 +1,11 @@
-/* Shaadi Bazaar — Service Worker
+/* Rukhsati — Service Worker
  * Provides:
  *  - Offline shell (cache homepage + static assets)
  *  - Push notifications
  *  - Network-first for API, cache-first for static
  */
 
-const CACHE_VERSION = 'shaadi-bazaar-v1';
+const CACHE_VERSION = 'rukhsati-v1';
 const SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -66,7 +66,7 @@ self.addEventListener('fetch', (event) => {
 
 // Push notifications
 self.addEventListener('push', (event) => {
-  let data = { title: 'Shaadi Bazaar', body: 'You have a new notification', url: '/' };
+  let data = { title: 'Rukhsati', body: 'You have a new notification', url: '/' };
   try {
     if (event.data) data = { ...data, ...event.data.json() };
   } catch { /* not JSON */ }

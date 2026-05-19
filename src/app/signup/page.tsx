@@ -1,15 +1,14 @@
 ﻿'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { CITIES } from '@/lib/constants';
 
 export default function SignupPage() {
-  const router = useRouter();
   const { signup } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -29,14 +28,40 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signup(formData);
-      router.push('/');
+      const result = await signup(formData);
+      setSignedUpEmail(result.email);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed');
     } finally {
       setLoading(false);
     }
   };
+
+  if (signedUpEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#800020] via-white to-[#d4a853] px-4">
+        <div className="w-full max-w-md glass rounded-2xl p-8 shadow-2xl text-center">
+          <div className="mx-auto h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center mb-4 text-4xl">📧</div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Check Your Email</h1>
+          <p className="text-gray-600 mb-4">
+            Hum ne verification link bheji hai <strong>{signedUpEmail}</strong> pe.
+          </p>
+          <p className="text-gray-600 mb-6">
+            Email kholo aur <strong>"Verify Email"</strong> button click karo — phir aap login kar sakte hain.
+          </p>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-6">
+            💡 Email nahi mili? Spam folder check karo.
+          </div>
+          <a
+            href="/login"
+            className="inline-block bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transition-all"
+          >
+            Back to Login
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#800020] via-white to-[#d4a853] px-4">

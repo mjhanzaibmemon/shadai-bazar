@@ -43,6 +43,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
+    // Block unverified emails — must verify before login (admins exempt for recovery)
+    if (!user.isEmailVerified && user.role !== 'admin') {
+      return NextResponse.json(
+        {
+          error: 'Please verify your email before logging in. Check your inbox for the verification link.',
+          emailNotVerified: true,
+          email: user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     // Sign token
     const token = signToken({
       userId: user._id.toString(),

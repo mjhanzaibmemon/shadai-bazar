@@ -9,6 +9,8 @@ export default function LoginPage() {
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -17,20 +19,44 @@ export default function LoginPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setUnverifiedEmail(null);
+    setResendStatus('idle');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setUnverifiedEmail(null);
     setLoading(true);
 
     try {
       await login(formData.email, formData.password);
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      const e = err as Error & { emailNotVerified?: boolean; email?: string };
+      if (e.emailNotVerified && e.email) {
+        setUnverifiedEmail(e.email);
+        setError(e.message);
+      } else {
+        setError(e.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!unverifiedEmail) return;
+    setResendStatus('sending');
+    try {
+      await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: unverifiedEmail }),
+      });
+      setResendStatus('sent');
+    } catch {
+      setResendStatus('idle');
     }
   };
 
@@ -40,9 +66,28 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-center gradient-gold mb-2">Rukhsati</h1>
         <p className="text-center text-gray-600 mb-8">Login to your account</p>
 
-        {error && (
+        {error && !unverifiedEmail && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
             {error}
+          </div>
+        )}
+
+        {unverifiedEmail && (
+          <div className="bg-amber-50 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg mb-6">
+            <p className="font-semibold mb-2">📧 Email Not Verified</p>
+            <p className="text-sm mb-3">{error}</p>
+            {resendStatus === 'sent' ? (
+              <p className="text-sm text-green-700 font-semibold">✓ Verification email sent! Check your inbox.</p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendStatus === 'sending'}
+                className="text-sm bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 disabled:opacity-50 font-semibold"
+              >
+                {resendStatus === 'sending' ? 'Sending...' : 'Resend verification email'}
+              </button>
+            )}
           </div>
         )}
 

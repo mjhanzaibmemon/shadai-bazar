@@ -22,7 +22,7 @@ interface AuthContextType {
     password: string;
     phone: string;
     city: string;
-  }) => Promise<void>;
+  }) => Promise<{ email: string; requiresEmailVerification: boolean }>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
@@ -62,45 +62,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     phone: string;
     city: string;
   }) => {
-    try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Signup failed');
-      }
-
-      const result = await response.json();
-      setUser(result.user);
-      await fetchUser();
-    } catch (error) {
-      throw error;
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Signup failed');
     }
+    return {
+      email: result.email,
+      requiresEmailVerification: !!result.requiresEmailVerification,
+    };
   };
 
   const login = async (email: string, password: string) => {
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Login failed');
-      }
-
-      const result = await response.json();
-      setUser(result.user);
-      await fetchUser();
-    } catch (error) {
-      throw error;
+    const result = await response.json();
+    if (!response.ok) {
+      const err = new Error(result.error || 'Login failed') as Error & {
+        emailNotVerified?: boolean;
+        email?: string;
+      };
+      err.emailNotVerified = !!result.emailNotVerified;
+      err.email = result.email;
+      throw err;
     }
+    setUser(result.user);
+    await fetchUser();
   };
 
   const logout = async () => {

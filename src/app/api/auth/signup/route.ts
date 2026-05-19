@@ -3,7 +3,7 @@ import { z } from 'zod';
 import crypto from 'crypto';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { hashPassword, signToken, AUTH_COOKIE_OPTIONS } from '@/lib/auth';
+import { hashPassword } from '@/lib/auth';
 import { sendEmail, emailTemplates } from '@/lib/email';
 import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
 
@@ -56,12 +56,6 @@ export async function POST(request: NextRequest) {
     user.emailVerifyTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
     await user.save();
 
-    // Sign JWT
-    const token = signToken({
-      userId: user._id.toString(),
-      email: user.email,
-    });
-
     // Fire-and-forget emails (never block response)
     const origin =
       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -74,29 +68,15 @@ export async function POST(request: NextRequest) {
       ...emailTemplates.verifyEmail(user.name, verifyLink),
     }).catch((err) => console.error('[signup] verify email failed:', err));
 
-    sendEmail({
-      to: user.email,
-      ...emailTemplates.welcome(user.name),
-    }).catch((err) => console.error('[signup] welcome email failed:', err));
-
-    // Set auth cookie
-    const response = NextResponse.json(
+    // Do NOT set auth cookie — user must verify email first.
+    return NextResponse.json(
       {
-        message: 'User registered successfully',
+        message: 'Account created. Please check your email to verify and activate your account.',
         requiresEmailVerification: true,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          city: user.city,
-        },
+        email: user.email,
       },
       { status: 201 }
     );
-
-    response.cookies.set('auth_token', token, AUTH_COOKIE_OPTIONS);
-
-    return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues[0].message }, { status: 400 });

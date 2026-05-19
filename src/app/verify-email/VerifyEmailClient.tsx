@@ -1,14 +1,17 @@
 ﻿'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 
 type Status = 'loading' | 'success' | 'error';
 
 function VerifyEmailInner() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const { fetchUser } = useAuth();
   const [status, setStatus] = useState<Status>('loading');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -25,7 +28,11 @@ function VerifyEmailInner() {
         const data = await res.json();
         if (cancelled) return;
         if (res.ok && data.verified) {
+          await fetchUser();
           setStatus('success');
+          setTimeout(() => {
+            if (!cancelled) router.push('/');
+          }, 2500);
         } else {
           setStatus('error');
           setErrorMsg(data.error || 'Verification failed');
@@ -39,7 +46,7 @@ function VerifyEmailInner() {
     }
     run();
     return () => { cancelled = true; };
-  }, [token]);
+  }, [token, fetchUser, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#800020] via-white to-[#d4a853] px-4">
@@ -59,10 +66,11 @@ function VerifyEmailInner() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h1>
-            <p className="text-gray-600 mb-6">Your account is now fully active. Welcome to Rukhsati.</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Email Verified! 🎉</h1>
+            <p className="text-gray-600 mb-2">Your account is now active. Welcome to Rukhsati!</p>
+            <p className="text-gray-500 text-sm mb-6">Redirecting you to home...</p>
             <Link href="/" className="inline-block bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-semibold py-2 px-6 rounded-lg hover:shadow-lg transition-all">
-              Continue
+              Continue Now
             </Link>
           </>
         )}

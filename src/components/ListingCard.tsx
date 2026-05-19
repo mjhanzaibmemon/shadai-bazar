@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Heart } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 interface ListingCardProps {
   id: string;
@@ -17,6 +19,7 @@ interface ListingCardProps {
   views: number;
   sellerName: string;
   featured?: boolean;
+  initialFavorite?: boolean;
 }
 
 export function ListingCard({
@@ -31,9 +34,38 @@ export function ListingCard({
   views,
   sellerName,
   featured,
+  initialFavorite = false,
 }: ListingCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isFavorite, setIsFavorite] = useState(initialFavorite);
+  const [toggling, setToggling] = useState(false);
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      router.push('/login?redirect=/');
+      return;
+    }
+    if (toggling) return;
+    const next = !isFavorite;
+    setIsFavorite(next);
+    setToggling(true);
+    try {
+      const res = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId: id }),
+      });
+      if (!res.ok) setIsFavorite(!next);
+    } catch {
+      setIsFavorite(!next);
+    } finally {
+      setToggling(false);
+    }
+  };
 
   return (
     <Link href={`/listing/${id}`}>
@@ -61,13 +93,11 @@ export function ListingCard({
             </div>
           )}
 
-          {/* Favorite Button */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              setIsFavorite(!isFavorite);
-            }}
-            className="absolute bottom-2 right-2 bg-white rounded-full p-2 hover:bg-gray-100 transition-all"
+            onClick={toggleFavorite}
+            disabled={toggling}
+            className="absolute bottom-2 right-2 bg-white rounded-full p-2 hover:bg-gray-100 transition-all disabled:opacity-50"
+            aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <Heart
               size={20}

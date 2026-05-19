@@ -27,6 +27,7 @@ export function SmartSearchBar({
   const [voiceSupported, setVoiceSupported] = useState(false);
   const [showImageDrop, setShowImageDrop] = useState(false);
   const [searchLang, setSearchLang] = useState<'en' | 'ur'>('en');
+  const [searchError, setSearchError] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,8 +78,10 @@ export function SmartSearchBar({
   };
 
   const handleImageSearch = async (file: File) => {
+    setSearchError('');
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image too large (max 5MB)');
+      setSearchError('Image too large (max 5MB)');
+      setTimeout(() => setSearchError(''), 4000);
       return;
     }
     const reader = new FileReader();
@@ -98,7 +101,8 @@ export function SmartSearchBar({
           router.push('/search');
         }
       } catch {
-        alert('Image search failed. Please try a text search.');
+        setSearchError('Image search failed. Please try a text search.');
+        setTimeout(() => setSearchError(''), 4000);
       }
       setShowImageDrop(false);
     };
@@ -107,6 +111,11 @@ export function SmartSearchBar({
 
   return (
     <div className={`relative ${className}`}>
+      {searchError && (
+        <div className="absolute -top-10 left-0 right-0 bg-rose-100 border border-rose-300 text-rose-700 text-xs px-3 py-1.5 rounded shadow-md z-10">
+          ⚠️ {searchError}
+        </div>
+      )}
       <form
         onSubmit={(e) => { e.preventDefault(); goSearch(); }}
         className="flex items-center gap-1 bg-white rounded-full border-2 border-gray-200 focus-within:border-[#800020] shadow-sm overflow-hidden"

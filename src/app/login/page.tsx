@@ -49,14 +49,20 @@ export default function LoginPage() {
     if (!unverifiedEmail) return;
     setResendStatus('sending');
     try {
-      await fetch('/api/auth/resend-verification', {
+      const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: unverifiedEmail }),
       });
-      setResendStatus('sent');
+      if (res.ok) {
+        setResendStatus('sent');
+      } else {
+        setResendStatus('idle');
+        setError('Failed to resend. Please try again in a few minutes.');
+      }
     } catch {
       setResendStatus('idle');
+      setError('Network error. Check your connection and try again.');
     }
   };
 

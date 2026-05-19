@@ -179,7 +179,11 @@ export default function SellPage() {
 
   const goNext = () => {
     const err = validateStep(step);
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (step < TOTAL_STEPS) setStep(step + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -192,7 +196,11 @@ export default function SellPage() {
 
   const handleSubmit = async () => {
     const err = validateStep(5);
-    if (err) { setError(err); return; }
+    if (err) {
+      setError(err);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     setSubmitting(true);
     setError('');
 

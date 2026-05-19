@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Heart, Share2, MessageCircle, MapPin } from 'lucide-react';
+import { Heart, Share2, MessageCircle, MapPin, Loader2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 interface ListingDetail {
@@ -46,6 +46,8 @@ export default function ListingClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
 
   useEffect(() => {
     fetchListing();
@@ -111,6 +113,28 @@ export default function ListingClient({ id }: { id: string }) {
                   fill
                   className='object-cover'
                 />
+
+                {listing.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setSelectedImage((i) => (i === 0 ? listing.images.length - 1 : i - 1))}
+                      className='absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors'
+                      aria-label='Previous image'
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button
+                      onClick={() => setSelectedImage((i) => (i === listing.images.length - 1 ? 0 : i + 1))}
+                      className='absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors'
+                      aria-label='Next image'
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                    <div className='absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-2 py-1 rounded-full'>
+                      {selectedImage + 1} / {listing.images.length}
+                    </div>
+                  </>
+                )}
 
                 {discount > 0 && (
                   <div className='absolute top-4 right-4 bg-[#e11d48] text-white px-4 py-2 rounded-lg font-bold'>
@@ -208,8 +232,23 @@ export default function ListingClient({ id }: { id: string }) {
                 >
                   <Heart size={20} fill={isFavorite ? '#800020' : 'none'} /> Save
                 </button>
-                <button className='flex-1 py-2 border-2 border-[#800020] text-[#800020] font-semibold rounded-lg hover:bg-gray-100 flex items-center justify-center gap-2'>
-                  <Share2 size={20} /> Share
+                <button
+                  onClick={async () => {
+                    const url = typeof window !== 'undefined' ? window.location.href : '';
+                    const shareData = { title: listing.title, text: `Check out "${listing.title}" on Rukhsati`, url };
+                    if (typeof navigator !== 'undefined' && navigator.share) {
+                      try { await navigator.share(shareData); } catch {}
+                    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      try {
+                        await navigator.clipboard.writeText(url);
+                        setShareStatus('copied');
+                        setTimeout(() => setShareStatus('idle'), 2000);
+                      } catch {}
+                    }
+                  }}
+                  className='flex-1 py-2 border-2 border-[#800020] text-[#800020] font-semibold rounded-lg hover:bg-gray-100 flex items-center justify-center gap-2'
+                >
+                  {shareStatus === 'copied' ? <><Check size={20} /> Link Copied</> : <><Share2 size={20} /> Share</>}
                 </button>
               </div>
 
@@ -257,10 +296,15 @@ export default function ListingClient({ id }: { id: string }) {
               {isAuthenticated && user?.id !== listing.seller._id ? (
                 <>
                   <button
-                    onClick={() => router.push(`/chat?to=${listing.seller._id}&listingId=${listing._id}`)}
-                    className='w-full py-3 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-bold rounded-lg hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2'
+                    disabled={chatLoading}
+                    onClick={() => {
+                      setChatLoading(true);
+                      router.push(`/chat?to=${listing.seller._id}&listingId=${listing._id}`);
+                    }}
+                    className='w-full py-3 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white font-bold rounded-lg hover:shadow-lg transition-all mb-3 flex items-center justify-center gap-2 disabled:opacity-70'
                   >
-                    <MessageCircle size={20} /> Chat with Seller
+                    {chatLoading ? <Loader2 size={20} className="animate-spin" /> : <MessageCircle size={20} />}
+                    {chatLoading ? 'Opening chat…' : 'Chat with Seller'}
                   </button>
                   <a
                     href={`https://wa.me/92${(listing.seller.phone || '').replace(/^(\+92|0)/, '')}?text=${encodeURIComponent(`Salam ${listing.seller.name}, I'm interested in your "${listing.title}" on Rukhsati`)}`}

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Send, Menu, X } from 'lucide-react';
+import { Send, Menu, X, Loader2 } from 'lucide-react';
 
 interface Conversation {
   userId: string;
@@ -75,10 +75,9 @@ function ChatPageInner() {
     fetchConversations();
   }, [isAuthenticated, authLoading, router, initialTo]);
 
-  // Handle ?to=<sellerId> — start or open conversation with that user
   useEffect(() => {
     if (!isAuthenticated || !initialTo || loading) return;
-    if (initialTo === user?.id) return; // can't message yourself
+    if (initialTo === user?.id) return;
 
     const existing = conversations.find((c) => c.userId === initialTo);
     if (existing) {
@@ -87,21 +86,24 @@ function ChatPageInner() {
       return;
     }
 
-    // No existing conversation — fetch the user's info to seed a placeholder
+    if (!initialListingId) return;
+    let cancelled = false;
     fetch(`/api/listings/${initialListingId}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
+        if (cancelled) return;
         if (data?.listing?.seller?.name) {
           setPendingNewUser({ id: initialTo, name: data.listing.seller.name });
           setSelectedUserId(initialTo);
           setShowMobileList(false);
-          if (data.listing.title && !newMessage) {
-            setNewMessage(`Salam! I'm interested in your "${data.listing.title}".`);
+          if (data.listing.title) {
+            setNewMessage((prev) => prev || `Salam! I'm interested in your "${data.listing.title}".`);
           }
         }
       })
       .catch(() => {});
-  }, [initialTo, initialListingId, conversations, isAuthenticated, loading, user, newMessage]);
+    return () => { cancelled = true; };
+  }, [initialTo, initialListingId, conversations, isAuthenticated, loading, user]);
 
   useEffect(() => {
     if (selectedUserId && !pendingNewUser) {
@@ -176,8 +178,7 @@ function ChatPageInner() {
         setMessages((prev) => [...prev, data.chat]);
         setNewMessage('');
         setPendingNewUser(null);
-        // Refresh conversations to update last message
-        fetchConversations();
+        await fetchConversations();
       } else {
         setSendError(data.error || `Failed to send (${response.status})`);
       }
@@ -313,7 +314,8 @@ function ChatPageInner() {
                   <img
                     src={selectedConversation.listing.images[0]}
                     alt={selectedConversation.listing.title}
-                    className="w-8 h-8 rounded object-cover"
+                    className="w-8 h-8 rounded object-cover bg-gray-200"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                   />
                   <div className="flex-1 text-sm">
                     <p className="font-semibold text-gray-800 line-clamp-1">
@@ -378,9 +380,10 @@ function ChatPageInner() {
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
-                  className="px-4 py-2 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-[#800020] to-[#e11d48] text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2 min-w-[56px] justify-center"
+                  aria-label={sending ? 'Sending' : 'Send'}
                 >
-                  <Send size={18} />
+                  {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                 </button>
               </div>
             </form>

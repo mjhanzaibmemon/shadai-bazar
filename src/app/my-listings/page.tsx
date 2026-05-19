@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Edit2, Trash2, Eye, EyeOff, Plus, MessageCircle } from 'lucide-react';
+import { Edit2, Trash2, Eye, EyeOff, Plus, MessageCircle, Loader2 } from 'lucide-react';
 
 interface Listing {
   _id: string;
@@ -27,6 +27,8 @@ export default function MyListingsPage() {
   const [filter, setFilter] = useState<'all' | 'active' | 'paused' | 'sold'>('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -62,6 +64,7 @@ export default function MyListingsPage() {
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
+    setTogglingId(id);
     try {
       const newStatus = currentStatus === 'active' ? 'paused' : 'active';
       const response = await fetch(`/api/listings/${id}`, {
@@ -73,17 +76,20 @@ export default function MyListingsPage() {
       if (response.ok) {
         setListings((prev) =>
           prev.map((listing) =>
-            listing._id === id ? { ...listing, status: newStatus as any } : listing
+            listing._id === id ? { ...listing, status: newStatus as 'active' | 'paused' } : listing
           )
         );
       }
     } catch (error) {
       console.error('Failed to update listing status:', error);
+    } finally {
+      setTogglingId(null);
     }
   };
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
+    setDeleteError('');
     try {
       const response = await fetch(`/api/listings/${id}`, {
         method: 'DELETE',
@@ -92,9 +98,12 @@ export default function MyListingsPage() {
       if (response.ok) {
         setListings((prev) => prev.filter((listing) => listing._id !== id));
         setDeleteId(null);
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setDeleteError(data.error || `Delete failed (${response.status})`);
       }
-    } catch (error) {
-      console.error('Failed to delete listing:', error);
+    } catch {
+      setDeleteError('Network error — please try again');
     } finally {
       setDeleting(false);
     }
@@ -255,7 +264,7 @@ export default function MyListingsPage() {
                         ) : (
                           <Link
                             href={`/chat?listingId=${listing._id}`}
-                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 text-sm transition-colors"
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 text-sm transition-colors"
                             title="View chat"
                           >
                             <MessageCircle size={14} /> 0
@@ -283,14 +292,21 @@ export default function MyListingsPage() {
 
                           <button
                             onClick={() => handleToggleStatus(listing._id, listing.status)}
-                            className={`p-2 rounded-lg transition-colors ${
+                            disabled={togglingId === listing._id}
+                            className={`p-2 rounded-lg transition-colors disabled:opacity-50 ${
                               listing.status === 'active'
                                 ? 'text-yellow-600 hover:bg-yellow-100'
                                 : 'text-green-600 hover:bg-green-100'
                             }`}
                             title={listing.status === 'active' ? 'Pause listing' : 'Activate listing'}
                           >
-                            {listing.status === 'active' ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {togglingId === listing._id ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : listing.status === 'active' ? (
+                              <EyeOff size={18} />
+                            ) : (
+                              <Eye size={18} />
+                            )}
                           </button>
 
                           <Link
@@ -343,9 +359,15 @@ export default function MyListingsPage() {
               Are you sure you want to delete this listing? This action cannot be undone.
             </p>
 
+            {deleteError && (
+              <div className="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded mb-4 text-sm">
+                ⚠️ {deleteError}
+              </div>
+            )}
+
             <div className="flex gap-4">
               <button
-                onClick={() => setDeleteId(null)}
+                onClick={() => { setDeleteId(null); setDeleteError(''); }}
                 disabled={deleting}
                 className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-50"
               >

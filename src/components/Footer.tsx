@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import Link from 'next/link';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -107,9 +107,6 @@ export function Footer() {
               <a href="tel:+923001234567" className="hover:text-[#d4a853] transition-colors" aria-label="Phone">
                 <Phone size={20} />
               </a>
-              <a href="#" className="hover:text-[#d4a853] transition-colors" aria-label="Location">
-                <MapPin size={20} />
-              </a>
             </div>
           </div>
         </div>
@@ -118,13 +115,13 @@ export function Footer() {
         <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
           <p>&copy; 2024 Rukhsati. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link href="/terms" className="hover:text-white transition-colors">
               Terms & Conditions
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
+            <Link href="/contact" className="hover:text-white transition-colors">
               Contact Us
             </Link>
           </div>

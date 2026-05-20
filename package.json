@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "make-admin": "node scripts/make-admin.mjs"
+    "make-admin": "node scripts/make-admin.mjs",
+    "reset-password": "node scripts/reset-password.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

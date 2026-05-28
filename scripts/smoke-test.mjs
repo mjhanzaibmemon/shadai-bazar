@@ -4,7 +4,7 @@
  * Run: node scripts/smoke-test.mjs
  */
 
-const BASE = process.env.BASE_URL || 'https://ruksati.jugarbazar.com';
+const BASE = process.env.BASE_URL || 'https://ruksati.com';
 const results = [];
 
 const log = (status, name, detail = '') => {

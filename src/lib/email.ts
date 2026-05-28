@@ -99,7 +99,7 @@ function button(href: string, label: string): string {
 // ── Template registry ────────────────────────────────────────────
 export const emailTemplates = {
   welcome(name: string) {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ruksati.jugarbazar.com';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ruksati.com';
     return {
       subject: '🌸 Welcome to Rukhsati — Pakistan ka Wedding Marketplace!',
       html: shell(`

@@ -18,7 +18,7 @@ Use this checklist before every major release. Run all flows in **two different 
 
 ## ✅ Smoke Test (5 min — run before every deploy)
 
-- [ ] Home page loads at `https://ruksati.jugarbazar.com`
+- [ ] Home page loads at `https://ruksati.com`
 - [ ] Listings grid shows at least 1 item
 - [ ] Click a listing → detail page loads
 - [ ] Login as existing user → redirects to home

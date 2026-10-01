@@ -64,6 +64,9 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json(
       {
         message: 'Logged in successfully',
+        // The token is only put in the body for the native app, which cannot use
+        // cookies. Browsers keep it in the httpOnly cookie, out of JS reach.
+        ...(request.headers.get('x-client') === 'mobile' ? { token } : {}),
         user: {
           id: user._id,
           name: user.name,

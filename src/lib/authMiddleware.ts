@@ -7,7 +7,11 @@ export async function verifyAuth(request: NextRequest): Promise<{
   response?: NextResponse;
 }> {
   try {
-    const token = request.cookies.get('auth_token')?.value;
+    // Web uses the httpOnly cookie; the mobile app sends a Bearer token.
+    const bearer = request.headers.get('authorization');
+    const token =
+      request.cookies.get('auth_token')?.value ||
+      (bearer?.startsWith('Bearer ') ? bearer.slice(7).trim() : undefined);
 
     if (!token) {
       return {

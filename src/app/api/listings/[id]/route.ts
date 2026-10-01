@@ -62,6 +62,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     allowedFields.forEach((field) => {
       if (body[field] !== undefined) listing[field] = body[field];
     });
+    // Sellers may pause/resume or mark sold — never approve/feature via this route.
+    if (body.status !== undefined) {
+      if (!['active', 'paused', 'sold'].includes(body.status)) {
+        return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+      }
+      listing.status = body.status;
+    }
     await listing.save();
 
     return NextResponse.json(

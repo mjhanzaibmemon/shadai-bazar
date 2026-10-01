@@ -54,7 +54,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-bold text-gray-800 mb-2">6. Disclaimer</h2>
               <p>
-                Rukhsati platform "as-is" provide kiya jata hai. Hum third-party transactions ke
+                Rukhsati platform &quot;as-is&quot; provide kiya jata hai. Hum third-party transactions ke
                 liye responsible nahi hain — lekin Shaadi Sahara aur escrow features fraud prevent
                 karne mein madad karte hain.
               </p>

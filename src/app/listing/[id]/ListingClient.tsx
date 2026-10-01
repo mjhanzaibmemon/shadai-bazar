@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Heart, Share2, MessageCircle, MapPin, Loader2, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -80,9 +81,9 @@ export default function ListingClient({ id }: { id: string }) {
       <div className='min-h-screen bg-gray-50 py-8'>
         <div className='container mx-auto px-4 text-center'>
           <h1 className='text-3xl font-bold text-gray-800 mb-4'>Listing not found</h1>
-          <a href='/' className='text-[#800020] font-semibold hover:underline'>
+          <Link href='/' className='text-[#800020] font-semibold hover:underline'>
             ← Back to home
-          </a>
+          </Link>
         </div>
       </div>
     );

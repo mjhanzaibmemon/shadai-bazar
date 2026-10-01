@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Send, Menu, X, Loader2 } from 'lucide-react';
+import PushToggle from '@/components/PushToggle';
 
 interface Conversation {
   userId: string;
@@ -182,8 +183,8 @@ function ChatPageInner() {
       } else {
         setSendError(data.error || `Failed to send (${response.status})`);
       }
-    } catch (error: any) {
-      setSendError(error?.message || 'Network error — please try again');
+    } catch (error) {
+      setSendError((error as Error)?.message || 'Network error — please try again');
     } finally {
       setSending(false);
     }
@@ -207,6 +208,9 @@ function ChatPageInner() {
       <div className="bg-gradient-to-r from-[#800020] to-[#e11d48] text-white p-4 shadow">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">💬 Messages</h1>
+          <div className="hidden sm:block ml-auto mr-3">
+            <PushToggle />
+          </div>
           <button
             onClick={() => setShowMobileList(!showMobileList)}
             className="md:hidden text-white"

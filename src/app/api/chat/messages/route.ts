@@ -8,6 +8,7 @@ import Listing from '@/models/Listing';
 import { verifyAuth } from '@/lib/authMiddleware';
 import { enforceRateLimit, getClientIp } from '@/lib/rateLimitMiddleware';
 import { sendEmail, emailTemplates } from '@/lib/email';
+import { sendPushToUser } from '@/lib/push';
 
 const sendMessageSchema = z.object({
   receiver: z.string(),
@@ -56,30 +57,22 @@ export async function POST(request: NextRequest) {
     await chat.populate('sender', 'name avatar');
     await chat.populate('receiver', 'name avatar');
 
-    // Push notification dispatch.
-    // TODO: Wire web-push library — VAPID keys via VAPID_PUBLIC_KEY/PRIVATE_KEY/SUBJECT env
-    try {
-      const receiverUser = await User.findById(receiver)
-        .select('pushSubscriptions pushSubscription')
-        .lean<any>();
-      const subs: any[] = Array.isArray(receiverUser?.pushSubscriptions)
-        ? receiverUser.pushSubscriptions
-        : receiverUser?.pushSubscription
-          ? [receiverUser.pushSubscription]
-          : [];
-      if (subs.length > 0) {
-        console.log(`[push] ${subs.length} subscription(s) for receiver ${receiver}`, subs);
-      }
-    } catch (pushErr) {
-      console.error('[push] lookup failed:', pushErr);
-    }
+    // Push notification (fire-and-forget; no-op until VAPID keys are configured)
+    sendPushToUser(receiver, {
+      title: `${(chat.sender as unknown as { name?: string })?.name || 'New message'}`,
+      body: message.length > 120 ? `${message.slice(0, 117)}...` : message,
+      url: '/chat',
+      tag: `chat-${auth.user?.userId}`,
+    }).catch((err) => console.error('[push] dispatch failed:', err));
 
     // Email notification (fire-and-forget)
     try {
       const [receiverUser, senderUser, listingDoc] = await Promise.all([
-        User.findById(receiver).select('name email').lean<any>(),
-        User.findById(auth.user?.userId).select('name').lean<any>(),
-        listing ? Listing.findById(listing).select('title').lean<any>() : Promise.resolve(null),
+        User.findById(receiver).select('name email').lean<{ name: string; email: string }>(),
+        User.findById(auth.user?.userId).select('name').lean<{ name: string }>(),
+        listing
+          ? Listing.findById(listing).select('title').lean<{ title: string }>()
+          : Promise.resolve(null),
       ]);
 
       if (receiverUser?.email && senderUser?.name) {

@@ -47,7 +47,7 @@ export default function SignupPage() {
             Hum ne verification link bheji hai <strong>{signedUpEmail}</strong> pe.
           </p>
           <p className="text-gray-600 mb-6">
-            Email kholo aur <strong>"Verify Email"</strong> button click karo — phir aap login kar sakte hain.
+            Email kholo aur <strong>&quot;Verify Email&quot;</strong> button click karo — phir aap login kar sakte hain.
           </p>
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 mb-6">
             💡 Email nahi mili? Spam folder check karo.

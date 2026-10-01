@@ -1,5 +1,9 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import connectDB from '@/lib/mongodb';
+import User from '@/models/User';
+import { verifyAuth } from '@/lib/authMiddleware';
+import { sendEmail } from '@/lib/email';
 
 // Email template types
 type EmailType = 'new_message' | 'new_review' | 'listing_featured' | 'listing_sold' | 'welcome';
@@ -7,12 +11,10 @@ type EmailType = 'new_message' | 'new_review' | 'listing_featured' | 'listing_so
 interface EmailPayload {
   to: string;
   type: EmailType;
-  data: Record<string, any>;
+  data: Record<string, string | number>;
 }
 
-// Nodemailer-like interface for email sending
-// In production, replace with actual email service (SendGrid, Mailgun, AWS SES, etc.)
-const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject: string; html: string }> = {
+const emailTemplates: Record<EmailType, (data: Record<string, string | number>) => { subject: string; html: string }> = {
   new_message: (data) => ({
     subject: `New Message from ${data.senderName}`,
     html: `
@@ -54,7 +56,7 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
           <p><strong>${data.reviewerName}</strong> left you a ${data.rating}-star review!</p>
           <div style="background: white; padding: 15px; border-radius: 4px; margin: 15px 0;">
             <div style="margin-bottom: 10px;">
-              ${[...Array(5)].map((_, i) => `<span style="color: ${i < data.rating ? '#FFD700' : '#CCC'};">★</span>`).join('')}
+              ${[...Array(5)].map((_, i) => `<span style="color: ${i < Number(data.rating) ? '#FFD700' : '#CCC'};">★</span>`).join('')}
             </div>
             <p style="margin: 0; color: #666;">"${data.comment}"</p>
           </div>
@@ -162,34 +164,6 @@ const emailTemplates: Record<EmailType, (data: Record<string, any>) => { subject
   }),
 };
 
-// Send email function (skeleton - implement with actual email service)
-async function sendEmail(email: string, subject: string, html: string): Promise<boolean> {
-  try {
-    // TODO: Implement with actual email service
-    // Options:
-    // 1. SendGrid: npm install @sendgrid/mail
-    // 2. Mailgun: npm install mailgun.js
-    // 3. AWS SES: npm install aws-sdk
-    // 4. Nodemailer: npm install nodemailer
-
-    // Example with SendGrid:
-    // import sgMail from '@sendgrid/mail';
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
-    // await sgMail.send({
-    //   to: email,
-    //   from: process.env.SENDER_EMAIL!,
-    //   subject,
-    //   html,
-    // });
-
-    console.log(`[EMAIL] Sent to ${email}: ${subject}`);
-    return true;
-  } catch (error) {
-    console.error('Email send error:', error);
-    return false;
-  }
-}
-
 const emailSchema = z.object({
   to: z.string().email(),
   type: z.enum(['new_message', 'new_review', 'listing_featured', 'listing_sold', 'welcome']),
@@ -198,6 +172,16 @@ const emailSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Admin-only: this endpoint can email arbitrary addresses, so it must
+    // never be reachable anonymously.
+    const auth = await verifyAuth(request);
+    if (!auth.isValid) return auth.response;
+    await connectDB();
+    const admin = await User.findById(auth.user?.userId).select('role').lean<{ role: string }>();
+    if (admin?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { to, type, data } = emailSchema.parse(body);
 
@@ -206,7 +190,7 @@ export async function POST(request: NextRequest) {
     const { subject, html } = template(data);
 
     // Send email
-    const success = await sendEmail(to, subject, html);
+    const success = await sendEmail({ to, subject, html });
 
     if (!success) {
       return NextResponse.json(

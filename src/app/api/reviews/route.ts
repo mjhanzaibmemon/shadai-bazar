@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const limit = 10;
     const skip = (page - 1) * limit;
 
-    const filter: any = { isVerified: true };
+    const filter: Record<string, unknown> = { isVerified: true };
     if (sellerId) filter.seller = sellerId;
 
     const [reviews, total] = await Promise.all([

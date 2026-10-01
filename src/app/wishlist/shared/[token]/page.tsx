@@ -29,6 +29,7 @@ export default function SharedWishlistPage({
 }) {
   const { token } = use(params);
   const [data, setData] = useState<SharedData | null>(null);
+  const [now] = useState(() => Date.now());
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -55,7 +56,7 @@ export default function SharedWishlistPage({
   }
 
   const daysLeft = data.bride.weddingDate
-    ? Math.max(0, Math.ceil((new Date(data.bride.weddingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((new Date(data.bride.weddingDate).getTime() - now) / (1000 * 60 * 60 * 24)))
     : null;
 
   return (
@@ -63,7 +64,7 @@ export default function SharedWishlistPage({
       <div className="bg-gradient-to-br from-[#800020] to-[#e11d48] text-white">
         <div className="container mx-auto px-4 py-10 text-center">
           <Heart size={36} className="mx-auto text-[#d4a853] fill-[#d4a853] mb-3" />
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">{data.bride.name}'s Wishlist</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{data.bride.name}&apos;s Wishlist</h1>
           <p className="text-rose-100 flex items-center justify-center gap-3 flex-wrap text-sm">
             <span className="flex items-center gap-1"><MapPin size={14} /> {data.bride.city}</span>
             {daysLeft !== null && (

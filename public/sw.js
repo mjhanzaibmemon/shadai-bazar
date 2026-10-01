@@ -2,10 +2,10 @@
  * Provides:
  *  - Offline shell (cache homepage + static assets)
  *  - Push notifications
- *  - Network-first for API, cache-first for static
+ *  - Network-first for pages, cache-first for static assets (API is never cached)
  */
 
-const CACHE_VERSION = 'rukhsati-v1';
+const CACHE_VERSION = 'rukhsati-v2';
 const SHELL = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -35,31 +35,37 @@ self.addEventListener('fetch', (event) => {
   // Skip cross-origin
   if (url.origin !== self.location.origin) return;
 
-  // API: network-first
-  if (url.pathname.startsWith('/api/')) {
+  // API responses are user-specific (auth, chat, orders): never cache them.
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Page navigations: network-first so users always see fresh content,
+  // falling back to the cached shell when offline.
+  if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((resp) => {
-          const copy = resp.clone();
-          caches.open(CACHE_VERSION).then((c) => c.put(request, copy));
+          if (resp.ok) {
+            const copy = resp.clone();
+            caches.open(CACHE_VERSION).then((c) => c.put(request, copy));
+          }
           return resp;
         })
-        .catch(() => caches.match(request))
+        .catch(() => caches.match(request).then((hit) => hit || caches.match('/')))
     );
     return;
   }
 
-  // Static / pages: cache-first with fallback to network
+  // Static assets: cache-first.
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
-      return fetch(request)
-        .then((resp) => {
+      return fetch(request).then((resp) => {
+        if (resp.ok) {
           const copy = resp.clone();
           caches.open(CACHE_VERSION).then((c) => c.put(request, copy));
-          return resp;
-        })
-        .catch(() => caches.match('/'));
+        }
+        return resp;
+      });
     })
   );
 });
@@ -76,6 +82,7 @@ self.addEventListener('push', (event) => {
       body: data.body,
       icon: '/icon-192.png',
       badge: '/icon-192.png',
+      tag: data.tag,
       data: { url: data.url },
       vibrate: [100, 50, 100],
     })

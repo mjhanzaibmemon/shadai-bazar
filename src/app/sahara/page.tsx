@@ -47,7 +47,7 @@ export default function SaharaLandingPage() {
       <section className="bg-gradient-to-br from-[#800020] via-[#a01030] to-[#e11d48] text-white">
         <div className="container mx-auto px-4 py-16 md:py-24 text-center">
           <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur px-4 py-1.5 rounded-full text-sm font-semibold mb-5 border border-white/20">
-            <Heart size={16} className="text-[#d4a853] fill-[#d4a853]" /> Pakistan's first wedding wear donation platform
+            <Heart size={16} className="text-[#d4a853] fill-[#d4a853]" /> Pakistan&apos;s first wedding wear donation platform
           </div>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             <span className="text-[#d4a853]">Shaadi</span> Sahara

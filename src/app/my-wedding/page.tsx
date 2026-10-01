@@ -29,6 +29,7 @@ export default function MyWeddingPage() {
   const router = useRouter();
 
   const [profile, setProfile] = useState<WeddingProfile | null>(null);
+  const [now] = useState(() => Date.now());
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -92,7 +93,7 @@ export default function MyWeddingPage() {
 
   // Calculate countdown
   const daysLeft = profile?.weddingDate
-    ? Math.max(0, Math.ceil((new Date(profile.weddingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((new Date(profile.weddingDate).getTime() - now) / (1000 * 60 * 60 * 24)))
     : null;
 
   const budgetPct = profile?.budget ? Math.min(100, (profile.spent / profile.budget) * 100) : 0;

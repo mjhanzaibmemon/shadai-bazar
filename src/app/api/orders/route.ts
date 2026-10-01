@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
     // Fire-and-forget order emails (buyer + seller)
     try {
       const [buyer, seller] = await Promise.all([
-        User.findById(auth.user?.userId).select('name email').lean<any>(),
-        User.findById(listing.seller).select('name email').lean<any>(),
+        User.findById(auth.user?.userId).select('name email').lean<{ name: string; email: string }>(),
+        User.findById(listing.seller).select('name email').lean<{ name: string; email: string }>(),
       ]);
       const orderId = order._id.toString();
 

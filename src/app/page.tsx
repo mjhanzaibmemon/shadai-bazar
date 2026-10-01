@@ -54,7 +54,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div className="text-white">
               <h1 className="text-5xl md:text-6xl font-bold mb-4 animate-fadeInUp">
-                Pakistan's #1 Wedding Marketplace
+                Pakistan&apos;s #1 Wedding Marketplace
               </h1>
               <p className="text-xl text-gray-100 mb-8 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
                 Buy and sell premium wedding wear at 40-70% cheaper prices. From bridal dresses to groom wear, find everything here.

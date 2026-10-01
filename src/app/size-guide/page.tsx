@@ -54,7 +54,7 @@ export default function SizeGuidePage() {
                   : 'text-gray-600 hover:text-[#800020]'
               }`}
             >
-              👗 Women's Sizing
+              👗 Women&apos;s Sizing
             </button>
             <button
               onClick={() => setAudience('men')}
@@ -64,7 +64,7 @@ export default function SizeGuidePage() {
                   : 'text-gray-600 hover:text-[#800020]'
               }`}
             >
-              🕴️ Men's Sizing
+              🕴️ Men&apos;s Sizing
             </button>
           </div>
         </div>
@@ -198,17 +198,17 @@ export default function SizeGuidePage() {
                     <td className="px-4 py-3 font-bold text-[#800020]">{row.label}</td>
                     {audience === 'women' ? (
                       <>
-                        <td className="px-4 py-3">{(row as typeof WOMENS_SIZE_CHART[number]).chest}"</td>
-                        <td className="px-4 py-3">{row.waist}"</td>
-                        <td className="px-4 py-3">{(row as typeof WOMENS_SIZE_CHART[number]).hip}"</td>
-                        <td className="px-4 py-3">{row.shoulder}"</td>
+                        <td className="px-4 py-3">{(row as typeof WOMENS_SIZE_CHART[number]).chest}&quot;</td>
+                        <td className="px-4 py-3">{row.waist}&quot;</td>
+                        <td className="px-4 py-3">{(row as typeof WOMENS_SIZE_CHART[number]).hip}&quot;</td>
+                        <td className="px-4 py-3">{row.shoulder}&quot;</td>
                       </>
                     ) : (
                       <>
-                        <td className="px-4 py-3">{(row as typeof MENS_SIZE_CHART[number]).chest}"</td>
-                        <td className="px-4 py-3">{row.waist}"</td>
-                        <td className="px-4 py-3">{row.shoulder}"</td>
-                        <td className="px-4 py-3">{(row as typeof MENS_SIZE_CHART[number]).length}"</td>
+                        <td className="px-4 py-3">{(row as typeof MENS_SIZE_CHART[number]).chest}&quot;</td>
+                        <td className="px-4 py-3">{row.waist}&quot;</td>
+                        <td className="px-4 py-3">{row.shoulder}&quot;</td>
+                        <td className="px-4 py-3">{(row as typeof MENS_SIZE_CHART[number]).length}&quot;</td>
                       </>
                     )}
                   </tr>
@@ -220,7 +220,7 @@ export default function SizeGuidePage() {
           <div className="mt-5 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
             <Info className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
             <p className="text-sm text-blue-900">
-              <strong>Tip:</strong> Agar aapki bust 36" hai aur waist 30" hai, toh aap probably <strong>L size</strong> ki hain
+              <strong>Tip:</strong> Agar aapki bust 36&quot; hai aur waist 30&quot; hai, toh aap probably <strong>L size</strong> ki hain
               (chest M ki hai but waist L ki). <em>Custom measurements</em> dena hamesha better hai pehle se cut dress ke liye.
             </p>
           </div>
@@ -264,7 +264,7 @@ export default function SizeGuidePage() {
                 </TipCard>
                 <TipCard emoji="🩳" title="Shalwar / Pajama">
                   Waist + inseam (crotch se ankle tak) + bottom width (mohri). Waist drawstring wali ho
-                  toh range likh dein (e.g., 30-36").
+                  toh range likh dein (e.g., 30-36&quot;).
                 </TipCard>
                 <TipCard emoji="👔" title="Western Suit / Tuxedo">
                   Chest + waist + jacket length + shoulder + sleeve. Pant inseam alag. Jacket size US/UK

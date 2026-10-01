@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     await connectDB();
     const listings = await Listing.find({ status: 'active' })
       .select('_id updatedAt')
-      .lean<any[]>();
+      .lean<{ _id: { toString(): string }; updatedAt?: Date }[]>();
     return [
       { url: baseUrl, priority: 1.0, changeFrequency: 'daily' as const },
       { url: `${baseUrl}/search`, priority: 0.9, changeFrequency: 'daily' as const },

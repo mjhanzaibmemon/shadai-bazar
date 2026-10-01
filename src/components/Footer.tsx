@@ -14,7 +14,7 @@ export function Footer() {
               💍 <span className="text-[#d4a853]">Rukhsati</span>
             </h3>
             <p className="text-gray-400">
-              Pakistan's premier marketplace for wedding and occasion wear. Buy and sell at 40-70% cheaper prices.
+              Pakistan&apos;s premier marketplace for wedding and occasion wear. Buy and sell at 40-70% cheaper prices.
             </p>
           </div>
 

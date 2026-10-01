@@ -3,6 +3,19 @@ import connectDB from '@/lib/mongodb';
 import Listing from '@/models/Listing';
 import ListingClient from './ListingClient';
 
+interface ListingLean {
+  title: string;
+  description?: string;
+  category?: string;
+  city?: string;
+  condition?: string;
+  fabric?: string;
+  images?: string[];
+  price?: number;
+  status?: string;
+  seller?: { name?: string; city?: string };
+}
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -11,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   try {
     await connectDB();
-    const l = await Listing.findById(id).lean<any>();
+    const l = await Listing.findById(id).lean<ListingLean>();
     if (!l) return { title: 'Listing not found' };
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ruksati.com';
     const url = `${baseUrl}/listing/${id}`;
@@ -23,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: fullTitle,
       description: fullDesc,
       alternates: { canonical: url },
-      keywords: [l.title, category, l.fabric, l.city, 'pakistan wedding', 'bridal wear', l.condition].filter(Boolean),
+      keywords: [l.title, category, l.fabric, l.city, 'pakistan wedding', 'bridal wear', l.condition].filter((k): k is string => Boolean(k)),
       openGraph: {
         title: l.title,
         description: fullDesc,
@@ -51,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 async function getProductJsonLd(id: string) {
   try {
     await connectDB();
-    const l = await Listing.findById(id).populate('seller', 'name city').lean<any>();
+    const l = await Listing.findById(id).populate('seller', 'name city').lean<ListingLean>();
     if (!l) return null;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ruksati.com';
     return {

@@ -43,7 +43,8 @@ export interface IUser extends Document {
   language: 'en' | 'ur';
 
   // ── Push notification token ──────────────────
-  pushSubscription?: string;          // JSON-stringified Web Push subscription
+  pushSubscription?: string;          // legacy single subscription (JSON string)
+  pushSubscriptions?: { endpoint: string; keys: { p256dh: string; auth: string } }[];
 
   // ── Email verification ───────────────────────
   isEmailVerified: boolean;
@@ -132,6 +133,20 @@ const userSchema = new Schema<IUser>(
 
     // Push subscription
     pushSubscription: { type: String, default: null },
+    pushSubscriptions: {
+      type: [
+        {
+          _id: false,
+          endpoint: { type: String, required: true },
+          keys: {
+            p256dh: { type: String, required: true },
+            auth: { type: String, required: true },
+          },
+        },
+      ],
+      default: [],
+      select: false,
+    },
 
     // Email verification
     isEmailVerified:         { type: Boolean, default: false },
